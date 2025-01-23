@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-gallery',
@@ -32,6 +32,7 @@ export class GalleryComponent implements AfterViewInit {
   isDragging = false;
   initialMousePosition = { x: 0, y: 0 };
   imagePosition = { x: 0, y: 0 };
+  zoomOrigin = { x: 50, y: 50 }; // Default zoom origin (center of the image)
 
   ngAfterViewInit(): void {
     this.lazyLoadImages(); // Lazy load images after the view is initialized
@@ -55,41 +56,13 @@ export class GalleryComponent implements AfterViewInit {
     });
   }
 
-  // Zoom-in functionality
-  zoomIn(): void {
-    if (this.zoomLevel < this.maxZoomLevel) {
-      this.zoomLevel += this.zoomStep;
-      this.updateZoom();
-    }
-  }
-
-  // Zoom-out functionality
-  zoomOut(): void {
-    if (this.zoomLevel > this.minZoomLevel) {
-      this.zoomLevel -= this.zoomStep;
-      this.updateZoom();
-    }
-  }
-
-  // Reset zoom functionality
-  resetZoom(): void {
-    this.zoomLevel = 1;
-    this.imagePosition = { x: 0, y: 0 }; // Reset position when zoom resets
-    this.updateZoom();
-  }
-
-  updateZoom(): void {
-    const imageElement = document.querySelector('.modal-image') as HTMLImageElement;
-    imageElement.style.setProperty('--zoom-level', this.zoomLevel.toString());
-    imageElement.classList.add('zoomed');
-  }
-
   // Open modal functionality
   openModal(image: { src: string; alt: string }): void {
     this.selectedImage = image;
     this.isModalOpen = true;
     this.zoomLevel = 1;
     this.imagePosition = { x: 0, y: 0 };
+    this.zoomOrigin = { x: 50, y: 50 }; // Reset to the center zoom origin
   }
 
   // Close modal functionality
@@ -98,36 +71,72 @@ export class GalleryComponent implements AfterViewInit {
     this.isModalOpen = false;
   }
 
-  // Get style for the image wrapper for dynamic adjustments
-  getImageStyle() {
-    return {
-      transform: `translate(${this.imagePosition.x}px, ${this.imagePosition.y}px) scale(${this.zoomLevel})`
-    };
-  }
+// Handle double-click to zoom
+zoomOnDoubleClick(event: MouseEvent): void {
+  // // Calculate the mouse position relative to the image
+  // const imageElement = event.target as HTMLImageElement;
+  // const rect = imageElement.getBoundingClientRect();
+  // const offsetX = event.clientX - rect.left;
+  // const offsetY = event.clientY - rect.top;
 
-  // Handle image drag functionality
-  onMouseDown(event: MouseEvent): void {
-    if (this.zoomLevel > 1) {  // Allow drag only when zoomed in
-      this.isDragging = true;
+  // // Toggle zoom level
+  // if (this.zoomLevel === 1) {
+  //   this.zoomLevel = 2; // Zoom in
+  // } else {
+  //   this.zoomLevel = 1; // Zoom out
+  // }
+
+  // // Set the transform origin to the click position (center the zoom on the click location)
+  // this.zoomOrigin = {
+  //   x: (offsetX / rect.width) * 100,
+  //   y: (offsetY / rect.height) * 100,
+  // };
+
+  // this.updateZoom();
+}
+
+// Get style for the image wrapper for dynamic adjustments
+getImageStyle() {
+  return {
+    transform: `translate(${this.imagePosition.x}px, ${this.imagePosition.y}px) scale(${this.zoomLevel})`,
+    transformOrigin: `${this.zoomOrigin.x}% ${this.zoomOrigin.y}%`, // Adjust transform-origin dynamically
+  };
+}
+
+// Handle image drag functionality
+onMouseDown(event: MouseEvent): void {
+  if (this.zoomLevel > 1) {  // Allow drag only when zoomed in
+    this.isDragging = true;
+    this.initialMousePosition = { x: event.clientX, y: event.clientY };
+    document.addEventListener('mousemove', this.onMouseMove.bind(this));
+    document.addEventListener('mouseup', this.onMouseUp.bind(this));
+  }
+}
+
+// Handle mousemove event for dragging
+onMouseMove(event: MouseEvent): void {
+  if (this.isDragging && this.selectedImage) {
+    const deltaX = event.clientX - this.initialMousePosition.x;
+    const deltaY = event.clientY - this.initialMousePosition.y;
+
+    const imageElement = document.querySelector('.modal-image') as HTMLImageElement;
+    if (imageElement) {
+      const rect = imageElement.getBoundingClientRect();
+
+      // Calculate boundaries for dragging, taking zoom into account
+      const maxOffsetX = (rect.width * this.zoomLevel - rect.width) / 2;
+      const maxOffsetY = (rect.height * this.zoomLevel - rect.height) / 2;
+
+      // Update image position within boundaries
+      this.imagePosition.x = Math.max(-maxOffsetX, Math.min(maxOffsetX, this.imagePosition.x + deltaX));
+      this.imagePosition.y = Math.max(-maxOffsetY, Math.min(maxOffsetY, this.imagePosition.y + deltaY));
+
       this.initialMousePosition = { x: event.clientX, y: event.clientY };
-      document.addEventListener('mousemove', this.onMouseMove.bind(this));
-      document.addEventListener('mouseup', this.onMouseUp.bind(this));
     }
   }
+}
 
-  // Handle mousemove event for dragging
-  onMouseMove(event: MouseEvent): void {
-    if (this.isDragging) {
-      const deltaX = event.clientX - this.initialMousePosition.x;
-      const deltaY = event.clientY - this.initialMousePosition.y;
-
-      this.imagePosition.x += deltaX;
-      this.imagePosition.y += deltaY;
-
-      this.initialMousePosition = { x: event.clientX, y: event.clientY };
-    }
-  }
-
+  
   // Stop dragging when mouse is released
   onMouseUp(): void {
     this.isDragging = false;
@@ -154,4 +163,42 @@ export class GalleryComponent implements AfterViewInit {
   preventContextMenu(event: MouseEvent): void {
     event.preventDefault();
   }
+
+  nextImage(): void {
+    // const currentIndex = this.images.findIndex((img) => img.src === this.selectedImage?.src);
+    // const nextIndex = (currentIndex + 1) % this.images.length; // Loop back to the first image
+    // this.selectedImage = this.images[nextIndex];
+    // this.resetZoom(); // Reset zoom and position
+  }
+  
+  // Navigate to previous image
+  previousImage(): void {
+    // const currentIndex = this.images.findIndex((img) => img.src === this.selectedImage?.src);
+    // const prevIndex = (currentIndex - 1 + this.images.length) % this.images.length; // Loop back to the last image
+    // this.selectedImage = this.images[prevIndex];
+    // this.resetZoom(); // Reset zoom and position
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = 1;
+    this.imagePosition = { x: 0, y: 0 };
+    this.zoomOrigin = { x: 50, y: 50 }; // Reset to center
+    const imageElement = document.querySelector('.modal-image') as HTMLImageElement;
+    if (imageElement) {
+      imageElement.style.setProperty('--zoom-level', '1');
+      imageElement.classList.remove('zoomed'); // Remove zoomed class
+      imageElement.style.transform = 'translate(0, 0) scale(1)';
+    }
+  }
+
+  updateZoom(): void {
+    const imageElement = document.querySelector('.modal-image') as HTMLImageElement;
+    if (imageElement) {
+      // Update the zoom level using the style property
+      imageElement.style.transform = `translate(-50%, -50%) scale(${this.zoomLevel})`;
+      imageElement.style.transition = 'transform 0.1s ease-in-out'; // Smooth zoom effect
+    }
+  }
+  
+  
 }

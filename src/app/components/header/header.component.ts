@@ -3,6 +3,7 @@ import { PricingComponent } from '../pricing/pricing.component';  // Import Pric
 import { CommonModule } from '@angular/common';  // Import CommonModule for ngIf and ngFor
 import { GalleryComponent } from '../gallery/gallery.component';
 import { LoginSignupComponent } from '../login-signup/login-signup.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-header',
@@ -11,15 +12,18 @@ import { LoginSignupComponent } from '../login-signup/login-signup.component';
   imports: [
     CommonModule,
     PricingComponent,// Add pricingComponent 
-    GalleryComponent, // Add galleryComponent 
-    LoginSignupComponent
+    LoginSignupComponent,
+    FooterComponent,
+    GalleryComponent
+    
   ],  
 })
-export class AppHeaderComponent {
+export class HeaderComponent {
   isMenuOpen: boolean = false;
   isMockupFormVisible: boolean = false;  // Add this line to initialize the variable
   windowWidth: number = window.innerWidth;
   isSignUpFormVisible: boolean = false;
+
 
 
 
@@ -84,9 +88,10 @@ export class AppHeaderComponent {
   }
 
   submitMockupForm(event: Event) {
-    
+
 
   }
+
    // Open the sign-up form and close the menu (if applicable)
    openSignUpFormAndCloseMenu() {
     this.isSignUpFormVisible = true; // Show the sign-up modal

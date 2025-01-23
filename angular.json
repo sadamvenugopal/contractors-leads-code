@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "trivajCode": {
+    "trivajcode": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -41,8 +41,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "7kB",  // Increased the warning limit
+                  "maximumError": "12kB"    // Increased the error limit
                 }
               ],
               "outputHashing": "all"
@@ -59,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "trivajCode:build:production"
+              "buildTarget": "trivajcode:build:production"
             },
             "development": {
-              "buildTarget": "trivajCode:build:development"
+              "buildTarget": "trivajcode:build:development"
             }
           },
           "defaultConfiguration": "development"

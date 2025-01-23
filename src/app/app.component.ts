@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AppHeaderComponent } from './components/header/header.component';
+import { HeaderComponent } from './components/header/header.component';
 
 @Component({
   selector: 'app-root',
   imports:
    [
     RouterOutlet, 
-    AppHeaderComponent,// Import AppHeaderComponent
+    HeaderComponent,// Import AppHeaderComponent
     CommonModule
   ], 
 
