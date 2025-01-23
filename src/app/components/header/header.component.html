@@ -36,7 +36,7 @@
 
 <app-login-signup *ngIf="isSignUpFormVisible" (close)="closeSignUpForm()"></app-login-signup>
 
-<!-- Services Section -->
+
 <!-- Services Section -->
 <section id="services">
   <h2>Our Services</h2>
@@ -67,6 +67,9 @@
   <app-pricing></app-pricing>  <!-- Pricing component -->
 </section>
 
+<section id="footer">
+  <app-footer></app-footer>
+</section>
 
 <!-- Modal for Free Mockup -->
 <div class="modal" [ngClass]="{'show': isMockupFormVisible}" (click)="closeMockupForm()">
