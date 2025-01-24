@@ -32,20 +32,23 @@
 
       <!-- Modal Image Wrapper -->
       <div class="modal-image-wrapper"
-      [ngStyle]="getImageStyle()"
-      (mousedown)="onMouseDown($event)"
-      (mouseup)="onMouseUp()"
-      (mousemove)="onMouseMove($event)">
-   <img 
-     [src]="selectedImage?.src"
-     [alt]="selectedImage?.alt" 
-     class="modal-image"
-     [style.transform]="'scale(' + zoomLevel + ')'"
-     (contextmenu)="preventContextMenu($event)"
-     (dblclick)="zoomOnDoubleClick($event)" />
- </div>
+           [ngStyle]="getImageStyle()"
+           (mousedown)="onMouseDown($event)"
+           (mouseup)="onMouseUp()"
+           (mousemove)="onMouseMove($event)">
+           <img 
+           [src]="selectedImage?.src"
+           [alt]="selectedImage?.alt" 
+           class="modal-image"
+           [style.transform]="'scale(' + zoomLevel + ')'"
+           [style.transform-origin]="'center center'" 
+           (dblclick)="zoomOnDoubleClick($event)"
+           (contextmenu)="preventContextMenu($event)" />
+         
+      </div>
  
       <p class="modal-caption">{{ selectedImage?.alt }}</p>
     </div>
   </div>
 </section>
+
