@@ -1,68 +1,117 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LoginSignupService } from '../../services/login-signup.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login-signup',
   templateUrl: './login-signup.component.html',
   styleUrls: ['./login-signup.component.css'],
-  imports: [CommonModule]
+  imports :[CommonModule]
 })
 export class LoginSignupComponent {
   @Output() close = new EventEmitter<void>();
 
+  signUpForm: FormGroup;
+  loginForm: FormGroup;
+  forgotPasswordForm: FormGroup;
 
-  isSignUpFormVisible: boolean = true;  // Initialize with Sign-Up form visible
-  isLoginFormVisible: boolean = false;  // Initially hide Login form
-  isForgotPasswordFormVisible: boolean = false;  // Initially hide Forgot Password form
+  isSignUpFormVisible = true;
+  isLoginFormVisible = false;
+  isForgotPasswordFormVisible = false;
 
-  isSubmissionInProgress: boolean = false;
+  constructor(private fb: FormBuilder, private loginSignupService: LoginSignupService) {
+    this.signUpForm = this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required]
+    });
 
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
 
-  openSignUpFormAndCloseMenu() {
-    this.isSignUpFormVisible = true;
-    this.isLoginFormVisible = false;  // Hide Login form
-    this.isForgotPasswordFormVisible = false;  // Hide Forgot Password form
+    this.forgotPasswordForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]]
+    });
   }
 
-  openLoginFormAndCloseMenu() {
-    this.isLoginFormVisible = true;
-    this.isSignUpFormVisible = false;  // Hide Sign-Up form
-    this.isForgotPasswordFormVisible = false;  // Hide Forgot Password form
+  submitSignUpForm() {
+    if (this.signUpForm.invalid) {
+      console.log('Form is invalid');
+      return;
+    }
+  
+    const { name, email, password, confirmPassword } = this.signUpForm.value;
+  
+    if (password !== confirmPassword) {
+      alert('Passwords do not match!');
+      return;
+    }
+  
+    console.log('Submitting sign-up form', { name, email, password });
+  
+    this.loginSignupService.signUp(name, email, password)
+      .then(() => {
+        console.log('Sign-up successful!');
+        alert('Sign-up successful! 🎉');
+      })
+      .catch((error) => {
+        console.error('Sign-up failed:', error);
+        alert('Sign-up failed. Please try again.');
+      });
+  }
+  
+  
+
+  submitLoginForm() {
+    if (this.loginForm.invalid) return;
+    const { email, password } = this.loginForm.value;
+
+    this.loginSignupService.login(email, password)
+      .then(() => alert('Login successful!'))
+      .catch(() => alert('Login failed. Check your credentials.'));
   }
 
-  openForgotPasswordForm() {
-    this.isForgotPasswordFormVisible = true;
-    this.isSignUpFormVisible = false;  // Hide Sign-Up form
-    this.isLoginFormVisible = false;  // Hide Login form
+  submitForgotPasswordForm() {
+    if (this.forgotPasswordForm.invalid) return;
+    const { email } = this.forgotPasswordForm.value;
+
+    this.loginSignupService.resetPassword(email)
+      .then(() => alert('Password reset email sent!'))
+      .catch(() => alert('Error sending reset email.'));
+  }
+
+  googleSignIn() {
+    this.loginSignupService.googleSignIn()
+      .then(() => alert('Google login successful!'))
+      .catch(() => alert('Google login failed. Please try again.'));
   }
 
   closeModal() {
     this.isSignUpFormVisible = false;
     this.isLoginFormVisible = false;
-    this.isForgotPasswordFormVisible = false; // Close Forgot Password form as well
+    this.isForgotPasswordFormVisible = false;
     this.close.emit();
   }
 
-  submitForgotPasswordForm(event: Event) {
-    event.preventDefault();
-    console.log('Forgot Password form submitted!');
-    this.closeModal();
+  openLoginForm() {
+    this.isSignUpFormVisible = false;
+    this.isLoginFormVisible = true;
+    this.isForgotPasswordFormVisible = false;
   }
 
-  submitSignUpForm(event: Event) {
-    event.preventDefault();
-    console.log('Sign-Up form submitted!');
-    this.closeModal();
+  openSignUpForm() {
+    this.isSignUpFormVisible = true;
+    this.isLoginFormVisible = false;
+    this.isForgotPasswordFormVisible = false;
   }
 
-  submitLoginForm(event: Event) {
-    event.preventDefault();
-    console.log('Login form submitted!');
-    this.closeModal();
+  openForgotPasswordForm() {
+    this.isSignUpFormVisible = false;
+    this.isLoginFormVisible = false;
+    this.isForgotPasswordFormVisible = true;
   }
-
-  // Placeholder for social login methods
-  facebookSignIn() {}
-  googleSignIn() {}
 }

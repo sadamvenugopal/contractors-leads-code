@@ -41,8 +41,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "7kB",  // Increased the warning limit
-                  "maximumError": "12kB"    // Increased the error limit
+                  "maximumWarning": "7kB",  
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all"

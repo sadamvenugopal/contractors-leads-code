@@ -72,42 +72,76 @@
 </section>
 
 <!-- Modal for Free Mockup -->
+<!-- Modal for Free Mockup -->
 <div class="modal" [ngClass]="{'show': isMockupFormVisible}" (click)="closeMockupForm()">
-  <div class="modal-content" (click)="$event.stopPropagation()"> <!-- Prevent click propagation here -->
+  <div class="modal-content" (click)="$event.stopPropagation()">
     <span class="close" (click)="closeMockupForm()">
-      <i class="fa fa-times-circle"></i> <!-- Font Awesome Error Icon -->
+      <i class="fa fa-times-circle"></i>
     </span>
     <h2>Contact With Us to Avail <span style="color: #ff6600; font-style: italic; font-weight: bold;">70% Discount</span></h2>
     <form (submit)="submitMockupForm($event)">
-      
       <!-- Name Input -->
       <div class="input-container">
-        <input type="text" id="name" name="name" required placeholder=" " />
+        <input
+          type="text"
+          id="name"
+          name="name"
+          required
+          pattern="[a-zA-Z\s]{3,30}"
+          placeholder=" "
+          title="Name should only contain letters and be 3-30 characters long."
+        />
         <label for="name">Name *</label>
       </div>
 
       <!-- Email Input -->
       <div class="input-container">
-        <input type="email" id="email" name="email" required placeholder=" " />
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+          placeholder=" "
+          title="Enter a valid Gmail address (e.g., example@gmail.com)."
+        />
         <label for="email">Email Address *</label>
       </div>
 
       <!-- Phone Input -->
       <div class="input-container">
-        <input type="tel" id="phone" name="phone" required placeholder=" " />
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          required
+          pattern="^(\+91)?\d{10,15}$"
+          placeholder=" "
+          title="Enter a valid phone number (with or without +91) and 10-15 digits."
+        />
         <label for="phone">Phone No. *</label>
       </div>
 
-      <!-- description Input -->
+      <!-- Description Input -->
       <div class="input-container">
-        <textarea id="description" name="description" required placeholder=" "></textarea>
-        <label for="description"> Enter a brief description </label>
+        <textarea
+          id="description"
+          name="description"
+          required
+          minlength="20"
+          maxlength="500"
+          placeholder=" "
+          title="Description must be between 20 and 500 characters."
+        ></textarea>
+        <label for="description">Enter a brief description *</label>
       </div>
 
       <button type="submit">Submit</button>
     </form>
   </div>
 </div>
+
+
 
 
 

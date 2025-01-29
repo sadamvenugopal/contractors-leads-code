@@ -592,3 +592,53 @@
     }
   }
   
+
+  /* Style the phone input container */
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.phone-input-wrapper select {
+  padding: 12px;
+  margin-right: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 120px; /* Adjust width for a cleaner look */
+  background-color: #fff;
+  font-size: 14px;
+  appearance: none; /* Remove default dropdown styles */
+}
+
+.phone-input-wrapper input {
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  flex: 1; /* Fill the remaining space */
+  background-color: #fff;
+  font-size: 14px;
+}
+
+.input-container {
+  margin-bottom: 15px;
+}
+
+label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Add hover and focus effects for input and select */
+.phone-input-wrapper select:hover,
+.phone-input-wrapper input:hover {
+  border-color: #0056b3;
+}
+
+.phone-input-wrapper select:focus,
+.phone-input-wrapper input:focus {
+  border-color: #0056b3;
+  outline: none;
+}
