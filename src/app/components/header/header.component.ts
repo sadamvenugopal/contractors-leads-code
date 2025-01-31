@@ -1,11 +1,14 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { PricingComponent } from '../pricing/pricing.component';
 import { CommonModule } from '@angular/common';
 import { GalleryComponent } from '../gallery/gallery.component';
 import { LoginSignupComponent } from '../login-signup/login-signup.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MockupService } from '../../services/mockup.service';
+import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
+
 import emailjs from 'emailjs-com';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-header',
@@ -23,7 +26,12 @@ export class HeaderComponent {
   isMenuOpen: boolean = false;
   isMockupFormVisible: boolean = false;
   isSignUpFormVisible: boolean = false;
+  isOTPVisible: boolean = false;  // Define isOTPVisible property
+  enteredOTP: string = '';  // Define enteredOTP property
   windowWidth: number = window.innerWidth;
+
+
+
 
   services = [
     { icon: 'icon1.png', title: 'Service 1', description: 'Description for Service 1.' },
@@ -37,8 +45,10 @@ export class HeaderComponent {
     { code: '+1', name: 'USA' },
     // Add more countries as needed
   ];
-  constructor(private mockupService: MockupService) {}
-
+  constructor(
+    private mockupService: MockupService,
+    private adminNotificationService: AdminNotificationService // Inject notification service
+  ) {}
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.windowWidth = window.innerWidth;
@@ -82,9 +92,9 @@ export class HeaderComponent {
     this.isSignUpFormVisible = false;
   }
 
+  // Form submission
   submitMockupForm(event: Event) {
     event.preventDefault();
-
     const target = event.target as HTMLFormElement;
     const formData = {
       from_name: (target.querySelector('#name') as HTMLInputElement)?.value || '',
@@ -97,35 +107,59 @@ export class HeaderComponent {
       return;
     }
 
-    const emailParams = {
-      from_name: formData.from_name,
-      from_email: formData.from_email,
-      phone: formData.phone,
-      description: formData.description,
-      to_name: 'Recipient Name',
-    };
+    // Send OTP to user email
+    this.mockupService.sendOTP(formData.from_email).subscribe({
+      next: (response) => {
+        console.log('OTP sent to user email!', response);
+        alert('OTP sent to your email! Please check your inbox.');
+        this.openOTPVerificationForm();
+      },
+      error: (error) => {
+        console.error('Error sending OTP:', error);
+      }
+    });
 
-    emailjs
-      .send('service_mlqlajz', 'temp_admin_notification', emailParams, 'nfRDr3wkvrORL7cT-')
-      .then((response) => {
-        console.log('Email sent successfully!', response);
-        alert('Form submitted successfully!');
-        this.closeMockupForm();
-      })
-      .catch((error) => {
-        console.error('Error sending email:', error);
-      });
-
+    // Save data to Firestore for admin notification
     this.mockupService.addMockupForm(formData).subscribe({
-      next: () => console.log('Form submitted to the backend!'),
-      error: (error) => console.error('Error submitting form to backend:', error),
+      next: () => {
+        console.log('Form submitted to Firestore!');
+        
+        // Send admin notification
+        this.adminNotificationService.sendAdminNotification(formData.from_name); // Send admin notification
+      },
+      error: (error) => {
+        console.error('Error submitting form:', error);
+      }
     });
   }
+  
+  openOTPVerificationForm() {
+    this.isOTPVisible = true; // Toggle OTP form visibility
+  }
+
+  verifyOTP() {
+    if (this.enteredOTP) {
+      this.mockupService.verifyOTP(this.enteredOTP).subscribe({
+        next: (response) => {
+          alert('OTP Verified! Submission successful.');
+          this.closeMockupForm();
+        },
+        error: (error) => {
+          alert('Invalid OTP. Please try again.');
+          console.error(error);
+        }
+      });
+    } else {
+      alert('Please enter the OTP.');
+    }
+  }
+  
 
   private validateForm(formData: { from_name: string; from_email: string; phone: string; description: string }): boolean {
     const nameRegex = /^[a-zA-Z]{3,30}$/;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;  // Corrected the email regex
     const phoneRegex = /^(\+91)?\d{10,15}$/;
+
     const descriptionWordCount = this.countWords(formData.description);
 
     // Validate Name

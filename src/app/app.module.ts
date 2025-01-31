@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './components/header/header.component';
 import { MockupService } from './services/mockup.service';
 import { LoginSignupService } from './services/login-signup.service';
+import { AdminNotificationService } from './services/admin-notification.service';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,7 @@ import { LoginSignupService } from './services/login-signup.service';
     RouterModule, // Import RouterModule for router-outlet
     
   ],
-  providers: [MockupService, LoginSignupService],
+  providers: [MockupService, LoginSignupService,AdminNotificationService],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
