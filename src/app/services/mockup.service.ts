@@ -1,79 +1,62 @@
-import { Injectable, NgZone } from '@angular/core';
-import { getFirestore, collection, addDoc, getDocs, query, orderBy } from '@angular/fire/firestore';
-import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from '@angular/fire/auth';
-import { Observable, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockupService {
-  private firestore = getFirestore();
-  private auth = getAuth();
-  private collectionName = 'mockup';
+  private backendBaseUrl = 'http://localhost:3000'; // Replace with your backend URL
 
-  constructor(private ngZone: NgZone) {}
+  constructor(private http: HttpClient) {}
 
-  // Send OTP via email
-  sendOTP(email: string): Observable<any> {
-    console.log('sendOTP called with email:', email);
-    return new Observable((observer) => {
-      const actionCodeSettings = {
-        url: 'http://localhost:4200', // Default to the homepage if you don't have a specific page
-        handleCodeInApp: true,
-      };
-
-      this.ngZone.run(() => {
-        sendSignInLinkToEmail(this.auth, email, actionCodeSettings)
-          .then(() => {
-            console.log('OTP sent successfully');
-            localStorage.setItem('emailForSignIn', email);
-            observer.next({ success: true });
-            observer.complete();
-          })
-          .catch((error) => {
-            console.error('Error sending OTP:', error);
-            observer.error(error);
-          });
-      });
-    });
-  }
-
-  // Verify OTP
-  verifyOTP(otp: string): Observable<any> {
-    const email = localStorage.getItem('emailForSignIn');
-    console.log('Verifying OTP for email:', email);
-    return new Observable((observer) => {
-      if (isSignInWithEmailLink(this.auth, otp)) {
-        this.ngZone.run(() => {
-          signInWithEmailLink(this.auth, email!, otp)
-            .then(() => {
-              console.log('OTP verified successfully');
-              observer.next({ success: true });
-              observer.complete();
-            })
-            .catch((error) => {
-              console.error('Error verifying OTP:', error);
-              observer.error(error);
-            });
-        });
-      } else {
-        console.error('Invalid OTP');
-        observer.error('Invalid OTP');
-      }
-    });
-  }
-
-  // Add mockup form data to Firestore
+  /**
+   * Add mockup form data to the backend.
+   */
   addMockupForm(data: any): Observable<any> {
-    console.log('Adding mockup form data:', data);
-    return from(addDoc(collection(this.firestore, this.collectionName), data));
+    const url = `${this.backendBaseUrl}/submit-form`;
+    return this.http.post(url, data).pipe(
+      map((response) => {
+        console.log('✅ Form submitted successfully:', response);
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Error submitting form:', error);
+        throw error;
+      })
+    );
   }
 
-  // Get all mockup entries
-  getMockupForms(): Observable<any[]> {
-    console.log('Fetching mockup forms');
-    const q = query(collection(this.firestore, this.collectionName), orderBy('timestamp', 'desc'));
-    return from(getDocs(q)).pipe(map((querySnapshot) => querySnapshot.docs.map((doc: any) => doc.data())));
+  /**
+   * Verify OTP with the backend.
+   */
+  verifyOTP(email: string, otp: string): Observable<any> {
+    const url = `${this.backendBaseUrl}/verify-otp`;
+    const payload = { email, otp }; // Ensure email is passed correctly
+    console.log('🔍 Sending OTP verification request:', payload); // Debugging Log
+    return this.http.post(url, payload).pipe(
+      map((response) => {
+        console.log('✅ OTP verified successfully:', response);
+        return response;
+      }),
+      catchError((error) => {
+        console.error('❌ Error verifying OTP:', error);
+        return new Observable((observer) => {
+          observer.error(error);
+        });
+      })
+    );
+  }
+
+  /**
+   * Update OTP verification status in Firestore (optional).
+   */
+  updateOTPVerificationStatus(mockupId: string, isVerified: boolean): Observable<any> {
+    console.log('🔄 Updating OTP verification status for mockup:', mockupId);
+    return new Observable((observer) => {
+      observer.next(true);
+      observer.complete();
+    });
   }
 }

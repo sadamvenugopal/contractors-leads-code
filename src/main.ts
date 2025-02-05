@@ -6,6 +6,7 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { provideHttpClient } from '@angular/common/http';
 
+// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA19KWm79n-f2T92Yrvm9myofDZ-1whSs0",
   authDomain: "sadamvenugopal-fd73f.firebaseapp.com",
@@ -23,10 +24,10 @@ if (getApps().length === 0) {
   console.log('Firebase already initialized');
 }
 
+// Bootstrap Application
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(), // Provide HttpClientModule at root level
-
+    provideHttpClient(),
     provideFirebaseApp(() => getApp()), // Get the app after it has been initialized
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
@@ -34,3 +35,4 @@ bootstrapApplication(AppComponent, {
   ]
 })
   .catch(err => console.error('Error bootstrapping application:', err));
+

@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { PricingComponent } from '../pricing/pricing.component';
 import { CommonModule } from '@angular/common';
 import { GalleryComponent } from '../gallery/gallery.component';
@@ -6,9 +6,7 @@ import { LoginSignupComponent } from '../login-signup/login-signup.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MockupService } from '../../services/mockup.service';
 import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
-
-import emailjs from 'emailjs-com';
-import { Auth } from '@angular/fire/auth';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-header',
@@ -16,6 +14,7 @@ import { Auth } from '@angular/fire/auth';
   styleUrls: ['./header.component.css'],
   imports: [
     CommonModule,
+    FormsModule,
     PricingComponent,
     LoginSignupComponent,
     FooterComponent,
@@ -24,14 +23,13 @@ import { Auth } from '@angular/fire/auth';
 })
 export class HeaderComponent {
   isMenuOpen: boolean = false;
-  isMockupFormVisible: boolean = false;
-  isSignUpFormVisible: boolean = false;
-  isOTPVisible: boolean = false;  // Define isOTPVisible property
-  enteredOTP: string = '';  // Define enteredOTP property
+  isMockupFormVisible: boolean = false; // Controls visibility of the mockup form modal
+  isSignUpFormVisible: boolean = false; // Controls visibility of the sign-up form modal
+  isOTPVisible: boolean = false; // Controls visibility of the OTP verification modal
+  isOTPVerified: boolean = false; // Controls visibility of the success popup
+  enteredOTP: string = ''; // Stores the OTP entered by the user
   windowWidth: number = window.innerWidth;
-
-
-
+  isLoading: boolean = false;
 
   services = [
     { icon: 'icon1.png', title: 'Service 1', description: 'Description for Service 1.' },
@@ -43,12 +41,13 @@ export class HeaderComponent {
   countries = [
     { code: '+91', name: 'India' },
     { code: '+1', name: 'USA' },
-    // Add more countries as needed
   ];
+
   constructor(
     private mockupService: MockupService,
-    private adminNotificationService: AdminNotificationService // Inject notification service
+    private adminNotificationService: AdminNotificationService
   ) {}
+
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.windowWidth = window.innerWidth;
@@ -83,6 +82,12 @@ export class HeaderComponent {
     this.isMockupFormVisible = false;
   }
 
+  closeAllModals() {
+    this.isMockupFormVisible = false;
+    this.isOTPVisible = false;
+    this.isOTPVerified = false;
+  }
+
   openSignUpFormAndCloseMenu() {
     this.isSignUpFormVisible = true;
     this.closeMenu();
@@ -92,100 +97,121 @@ export class HeaderComponent {
     this.isSignUpFormVisible = false;
   }
 
-  // Form submission
+
   submitMockupForm(event: Event) {
     event.preventDefault();
+    this.isLoading = true;
+  
     const target = event.target as HTMLFormElement;
     const formData = {
-      from_name: (target.querySelector('#name') as HTMLInputElement)?.value || '',
-      from_email: (target.querySelector('#email') as HTMLInputElement)?.value || '',
+      name: (target.querySelector('#name') as HTMLInputElement)?.value || '',
+      email: (target.querySelector('#email') as HTMLInputElement)?.value || '',
       phone: (target.querySelector('#phone') as HTMLInputElement)?.value || '',
       description: (target.querySelector('#description') as HTMLTextAreaElement)?.value || '',
     };
-
-    if (!this.validateForm(formData)) {
+  
+    // ✅ Ensure email is stored in localStorage BEFORE using it
+    if (formData.email) {
+      localStorage.setItem('userEmail', formData.email);
+    } else {
+      console.error('Email is missing from the form!');
+      alert('Please enter a valid email.');
+      this.isLoading = false;
       return;
     }
-
-    // Send OTP to user email
-    this.mockupService.sendOTP(formData.from_email).subscribe({
-      next: (response) => {
-        console.log('OTP sent to user email!', response);
-        alert('OTP sent to your email! Please check your inbox.');
-        this.openOTPVerificationForm();
-      },
-      error: (error) => {
-        console.error('Error sending OTP:', error);
-      }
-    });
-
-    // Save data to Firestore for admin notification
+  
+    if (!this.validateForm(formData)) {
+      this.isLoading = false;
+      return;
+    }
+  
     this.mockupService.addMockupForm(formData).subscribe({
-      next: () => {
-        console.log('Form submitted to Firestore!');
-        
-        // Send admin notification
-        this.adminNotificationService.sendAdminNotification(formData.from_name); // Send admin notification
+      next: (response) => {
+        console.log('Form submitted successfully:', response);
+        localStorage.setItem('mockupId', response.id); // Store mockup ID
+        this.isMockupFormVisible = false;
+        this.isOTPVisible = true;
+        alert('OTP sent to your email! Please check your inbox.');
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error submitting form:', error);
-      }
+        alert('There was an issue submitting your form. Please try again later.');
+        this.isLoading = false;
+      },
     });
   }
   
-  openOTPVerificationForm() {
-    this.isOTPVisible = true; // Toggle OTP form visibility
-  }
-
   verifyOTP() {
-    if (this.enteredOTP) {
-      this.mockupService.verifyOTP(this.enteredOTP).subscribe({
-        next: (response) => {
-          alert('OTP Verified! Submission successful.');
-          this.closeMockupForm();
-        },
-        error: (error) => {
-          alert('Invalid OTP. Please try again.');
-          console.error(error);
-        }
-      });
-    } else {
+    if (!this.enteredOTP) {
       alert('Please enter the OTP.');
+      return;
     }
+  
+    this.isLoading = true;
+    const userEmail = localStorage.getItem('userEmail'); // Fetch email from localStorage
+  
+    if (!userEmail) {
+      console.error('User email not found in localStorage');
+      alert('There was an issue verifying the OTP. Please try again later.');
+      this.isLoading = false;
+      return;
+    }
+  
+    this.mockupService.verifyOTP(userEmail, this.enteredOTP).subscribe({
+      next: () => {
+        alert('OTP Verified! Submission successful.');
+        this.isOTPVisible = false;
+        this.isOTPVerified = true;
+        this.enteredOTP = '';
+        this.isLoading = false;
+      },
+      error: (error) => {
+        alert('Invalid OTP. Please try again.');
+        console.error(error);
+        this.isLoading = false;
+      },
+    });
   }
   
 
-  private validateForm(formData: { from_name: string; from_email: string; phone: string; description: string }): boolean {
+
+  closeOTPVerifiedPopup() {
+    this.isOTPVerified = false;
+    this.closeMockupForm();
+  }
+
+  private resetForm() {
+    this.enteredOTP = '';
+    this.isMockupFormVisible = false;
+    const form = document.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+  }
+
+  private validateForm(formData: { name: string; email: string; phone: string; description: string }): boolean {
     const nameRegex = /^[a-zA-Z]{3,30}$/;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;  // Corrected the email regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^(\+91)?\d{10,15}$/;
-
     const descriptionWordCount = this.countWords(formData.description);
-
-    // Validate Name
-    if (!nameRegex.test(formData.from_name)) {
+  
+    if (!nameRegex.test(formData.name)) {
       alert('Name must contain only letters and be between 3 and 30 characters.');
       return false;
     }
-
-    // Validate Email
-    if (!emailRegex.test(formData.from_email)) {
+    if (!emailRegex.test(formData.email)) {
       alert('Email must be a valid Gmail address.');
       return false;
     }
-
-    // Validate Phone
     if (!phoneRegex.test(formData.phone)) {
       alert('Phone number must be 10 to 15 digits long and may include country code.');
       return false;
     }
-
-    // Validate Description
     if (descriptionWordCount < 20 || descriptionWordCount > 100) {
       alert('Description must contain between 20 and 100 words.');
       return false;
     }
-
     return true;
   }
 

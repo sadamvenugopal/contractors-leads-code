@@ -19,20 +19,51 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    
+
     // Initialize Firebase only if not already initialized
     provideFirebaseApp(() => {
-      if (getApps().length === 0) {
-        console.log('Initializing Firebase');
-        initializeApp(firebaseConfig);
-      } else {
-        console.log('Firebase already initialized');
+      try {
+        if (getApps().length === 0) {
+          console.log('Initializing Firebase');
+          return initializeApp(firebaseConfig);
+        } else {
+          console.log('Firebase already initialized');
+          return getApp();
+        }
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        throw error;
       }
-      return getApp(); // Return the Firebase app
     }),
 
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideMessaging(() => getMessaging()),
+    // Provide Auth with error handling
+    provideAuth(() => {
+      try {
+        return getAuth();
+      } catch (error) {
+        console.error('Error getting Auth:', error);
+        throw error;
+      }
+    }),
+
+    // Provide Firestore with error handling
+    provideFirestore(() => {
+      try {
+        return getFirestore();
+      } catch (error) {
+        console.error('Error getting Firestore:', error);
+        throw error;
+      }
+    }),
+
+    // Provide Messaging with error handling
+    provideMessaging(() => {
+      try {
+        return getMessaging();
+      } catch (error) {
+        console.error('Error getting Messaging:', error);
+        throw error;
+      }
+    })
   ]
 };
