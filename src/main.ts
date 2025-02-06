@@ -5,6 +5,7 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { provideHttpClient } from '@angular/common/http';
+import { SocialAuthServiceConfig, SocialLoginModule, GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-social-login';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -28,11 +29,28 @@ if (getApps().length === 0) {
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(),
-    provideFirebaseApp(() => getApp()), // Get the app after it has been initialized
+    provideFirebaseApp(() => getApp()),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
-    provideMessaging(() => getMessaging())
+    provideMessaging(() => getMessaging()),
+
+    // Social Authentication Providers (Fix: No "provideSocialAuth")
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false, // Change to true if needed
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider('YOUR_GOOGLE_CLIENT_ID')
+          },
+          {
+            id: FacebookLoginProvider.PROVIDER_ID,
+            provider: new FacebookLoginProvider('YOUR_FACEBOOK_CLIENT_ID')
+          }
+        ]
+      } as SocialAuthServiceConfig
+    }
   ]
 })
   .catch(err => console.error('Error bootstrapping application:', err));
-

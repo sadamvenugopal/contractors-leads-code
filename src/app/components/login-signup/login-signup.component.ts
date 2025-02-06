@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LoginSignupService } from '../../services/login-signup.service';
 import { CommonModule } from '@angular/common';
@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-login-signup',
   templateUrl: './login-signup.component.html',
   styleUrls: ['./login-signup.component.css'],
-  imports :[CommonModule]
+  imports: [CommonModule],
 })
 export class LoginSignupComponent {
   @Output() close = new EventEmitter<void>();
@@ -15,79 +15,74 @@ export class LoginSignupComponent {
   signUpForm: FormGroup;
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
-
   isSignUpFormVisible = true;
   isLoginFormVisible = false;
   isForgotPasswordFormVisible = false;
 
-  constructor(private fb: FormBuilder, private loginSignupService: LoginSignupService) {
+  constructor(
+    private fb: FormBuilder,
+    private loginSignupService: LoginSignupService
+  ) {
     this.signUpForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
     });
-
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
-
     this.forgotPasswordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
     });
   }
 
-  submitSignUpForm() {
-    if (this.signUpForm.invalid) {
-      console.log('Form is invalid');
-      return;
-    }
-  
+  async submitSignUpForm() {
+    if (this.signUpForm.invalid) return;
     const { name, email, password, confirmPassword } = this.signUpForm.value;
-  
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
       return;
     }
-  
-    console.log('Submitting sign-up form', { name, email, password });
-  
-    this.loginSignupService.signUp(name, email, password)
-      .then(() => {
-        console.log('Sign-up successful!');
-        alert('Sign-up successful! 🎉');
-      })
-      .catch((error) => {
-        console.error('Sign-up failed:', error);
-        alert('Sign-up failed. Please try again.');
-      });
+    try {
+      await this.loginSignupService.signUp(name, email, password);
+      alert('Sign-up successful! 🎉');
+    } catch (error) {
+      console.error('Sign-up error:', error);
+      alert('Sign-up failed. Please try again.');
+    }
   }
-  
-  
 
-  submitLoginForm() {
+  async submitLoginForm() {
     if (this.loginForm.invalid) return;
     const { email, password } = this.loginForm.value;
-
-    this.loginSignupService.login(email, password)
-      .then(() => alert('Login successful!'))
-      .catch(() => alert('Login failed. Check your credentials.'));
+    this.loginSignupService.login(email, password).subscribe(
+      (response: any) => {
+        if (response && response.token) {
+          this.loginSignupService.setToken(response.token);
+          alert('Login successful!');
+        } else {
+          alert('Login failed. No token received.');
+        }
+      },
+      (error: any) => {
+        console.error('Login error:', error);
+        alert('Login failed. Check your credentials.');
+      }
+    );
   }
 
-  submitForgotPasswordForm() {
+  async submitForgotPasswordForm() {
     if (this.forgotPasswordForm.invalid) return;
     const { email } = this.forgotPasswordForm.value;
-
-    this.loginSignupService.resetPassword(email)
-      .then(() => alert('Password reset email sent!'))
-      .catch(() => alert('Error sending reset email.'));
-  }
-
-  googleSignIn() {
-    this.loginSignupService.googleSignIn()
-      .then(() => alert('Google login successful!'))
-      .catch(() => alert('Google login failed. Please try again.'));
+    try {
+      await this.loginSignupService.resetPassword(email);
+      alert('Password reset email sent!');
+    } catch (error) {
+      console.error('Reset password error:', error);
+      alert('Error sending reset email.');
+    }
   }
 
   closeModal() {
@@ -113,5 +108,13 @@ export class LoginSignupComponent {
     this.isSignUpFormVisible = false;
     this.isLoginFormVisible = false;
     this.isForgotPasswordFormVisible = true;
+  }
+
+  googleLogin() {
+    this.loginSignupService.googleLogin();
+  }
+
+  facebookLogin() {
+    this.loginSignupService.facebookLogin();
   }
 }

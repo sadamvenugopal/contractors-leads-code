@@ -3,12 +3,17 @@ const express = require('express');
 const sgMail = require('@sendgrid/mail');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const authRoutes = require('./auth');  // Import your auth.js
+const passport = require('passport');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use('/auth', authRoutes); // Set up the auth routes
 app.use(cors());
 app.use(express.json());
+app.use(passport.initialize());
+
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const adminEmail = process.env.ADMIN_EMAIL;
@@ -108,3 +113,6 @@ app.post('/verify-otp', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+
+

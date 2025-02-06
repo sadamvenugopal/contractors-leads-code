@@ -7,6 +7,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { MockupService } from '../../services/mockup.service';
 import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
 import { FormsModule } from '@angular/forms';
+import { ClientformComponent } from '../../clientform/clientform.component';
 
 @Component({
   selector: 'app-header',
@@ -19,6 +20,7 @@ import { FormsModule } from '@angular/forms';
     LoginSignupComponent,
     FooterComponent,
     GalleryComponent,
+    ClientformComponent
   ],
 })
 export class HeaderComponent {
