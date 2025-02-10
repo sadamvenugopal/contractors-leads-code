@@ -50,7 +50,7 @@ bootstrapApplication(AppComponent, {
           }
         ]
       } as SocialAuthServiceConfig
-    }
+    }, provideFirebaseApp(() => initializeApp({ projectId: "sadamvenugopal-fd73f", appId: "1:683383393221:web:65dd30bdd7023064df19ac", storageBucket: "sadamvenugopal-fd73f.firebasestorage.app", apiKey: "AIzaSyA19KWm79n-f2T92Yrvm9myofDZ-1whSs0", authDomain: "sadamvenugopal-fd73f.firebaseapp.com", messagingSenderId: "683383393221" })), provideAuth(() => getAuth()), provideFirestore(() => getFirestore())
   ]
 })
   .catch(err => console.error('Error bootstrapping application:', err));

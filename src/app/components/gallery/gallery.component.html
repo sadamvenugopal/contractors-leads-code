@@ -12,8 +12,12 @@
         class="lazy-image" 
         loading="lazy"
         (contextmenu)="preventContextMenu($event)" />
-      <div class="image-overlay" (click)="openModal(image)" (contextmenu)="preventContextMenu($event)"></div>
+      <div class="image-overlay" (click)="openModal(image)" (contextmenu)="preventContextMenu($event)">
+        <p class="image-id">{{ image.id }}</p> <!-- Display the ID below the image -->
+
+      </div>
     </div>
+    
   </div>
 
   <!-- Load More Button -->

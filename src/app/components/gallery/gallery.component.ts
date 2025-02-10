@@ -9,18 +9,18 @@ import { CommonModule } from '@angular/common';
 })
 export class GalleryComponent implements AfterViewInit, OnInit, OnDestroy {
   images = [
-    { src: '/designs/Decks.png', alt: 'Project 1' },
-    { src: '/designs/acAndHeating.jpg', alt: 'Project 2' },
-    { src: '/designs/bathroom.png', alt: 'Project 3' },
-    { src: '/designs/Electrician.jpg', alt: 'Project 4' },
-    { src: '/designs/Fencing.jpg', alt: 'Project 5' },
-    { src: '/designs/Flooring.jpg', alt: 'Project 6' },
-    { src: '/designs/garageDoors.jpg', alt: 'Project 7' },
-    { src: '/designs/Kitchen.jpg', alt: 'Project 8' },
-    { src: '/designs/lawnMover.png', alt: 'Project 9' },
-    { src: '/designs/pest.jpg', alt: 'Project 10' },
-    { src: '/designs/Plumbing.jpg', alt: 'Project 11' },
-    { src: '/designs/roofing.png', alt: 'Project 12' },
+    { id: 'T0001', src: '/designs/Decks.png', alt: 'Project 1' },
+    { id: 'T0002', src: '/designs/acAndHeating.jpg', alt: 'Project 2' },
+    { id: 'T0003', src: '/designs/bathroom.png', alt: 'Project 3' },
+    { id: 'T0004', src: '/designs/Electrician.jpg', alt: 'Project 4' },
+    { id: 'T0005', src: '/designs/Fencing.jpg', alt: 'Project 5' },
+    { id: 'T0006', src: '/designs/Flooring.jpg', alt: 'Project 6' },
+    { id: 'T0007', src: '/designs/garageDoors.jpg', alt: 'Project 7' },
+    { id: 'T0008', src: '/designs/Kitchen.jpg', alt: 'Project 8' },
+    { id: 'T0009', src: '/designs/lawnMover.png', alt: 'Project 9' },
+    { id: 'T0010', src: '/designs/pest.jpg', alt: 'Project 10' },
+    { id: 'T0011', src: '/designs/Plumbing.jpg', alt: 'Project 11' },
+    { id: 'T0012', src: '/designs/roofing.png', alt: 'Project 12' },
   ];
 
   selectedImage: { src: string; alt: string } | null = null;
