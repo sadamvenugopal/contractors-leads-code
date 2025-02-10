@@ -25,6 +25,7 @@
 </header>
 
 <!-- Home Section -->
+<!-- Home Section -->
 <section id="home" class="home-section">
   <div class="overlay-content">
     <h1 class="home-title">
@@ -32,8 +33,48 @@
     </h1>
     <button class="btn get-started-btn" (click)="openSignUpFormAndCloseMenu()">Get Started</button>
   </div>
+  <!-- Modal for Free Mockup and OTP Verification -->
+  <div class="modal" [ngClass]="{'show': isMockupFormVisible || isOTPVisible}">
+    <div class="modal-content" (click)="$event.stopPropagation()" role="dialog">
+      <span class="close" (click)="closeAllModals()" aria-label="Close Modal">
+        <i class="fa fa-times-circle"></i>
+      </span> 
+      <h2 *ngIf="isMockupFormVisible" id="mockup-form-title">Contact With Us to Avail 
+        <span style="color: #ff6600; font-style: italic; font-weight: bold;">70% Discount</span>
+      </h2>
+      <!-- Mockup Form -->
+      <form *ngIf="isMockupFormVisible" (submit)="submitMockupForm($event)">
+        <div class="input-container">
+          <input type="text" id="name" name="name" required pattern="[a-zA-Z\s]{3,30}" placeholder=" " 
+            title="Name should only contain letters and be 3-30 characters long." />
+          <label for="name">Name *</label>
+        </div>
+        <div class="input-container">
+          <input type="email" id="email" name="email" required pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" 
+            title="Enter a valid Gmail address (e.g., example@gmail.com)." />
+          <label for="email">Email Address *</label>
+        </div>
+        <div class="input-container">
+          <input type="tel" id="phone" name="phone" required pattern="^(\+91)?\d{10,15}$" placeholder=" " 
+            title="Enter a valid phone number (with or without +91) and 10-15 digits." />
+          <label for="phone">Phone No. *</label>
+        </div>
+        <div class="input-container">
+          <textarea id="description" name="description" required minlength="20" maxlength="500" placeholder=" " 
+            title="Description must be between 20 and 500 characters."></textarea>
+          <label for="description">Enter a brief description *</label>
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      <!-- OTP Form -->
+      <div *ngIf="isOTPVisible" class="otp-content">
+        <h2>Enter OTP</h2>
+        <input type="text" [(ngModel)]="enteredOTP" placeholder="Enter OTP" />
+        <button (click)="verifyOTP()">Verify</button>
+      </div>
+    </div>
+  </div>
 </section>
-
 <app-login-signup *ngIf="isSignUpFormVisible" (close)="closeSignUpForm()"></app-login-signup>
 
 
@@ -75,57 +116,7 @@
   <app-clientform></app-clientform>
 </section>
 
-<!-- Modal for Free Mockup and OTP Verification -->
-<div class="modal" [ngClass]="{'show': isMockupFormVisible || isOTPVisible}" (click)="closeAllModals()">
-  <div class="modal-content" (click)="$event.stopPropagation()" role="dialog" [attr.aria-labelledby]="isMockupFormVisible ? 'mockup-form-title' : 'otp-modal-title'">
-    <span class="close" (click)="closeAllModals()" aria-label="Close Modal">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <h2 id="mockup-form-title" *ngIf="isMockupFormVisible">Contact With Us to Avail <span style="color: #ff6600; font-style: italic; font-weight: bold;">70% Discount</span></h2>
-    <h2 id="otp-modal-title" *ngIf="isOTPVisible">Verify Your OTP</h2>
-    <!-- Mockup Form -->
-    <form (submit)="submitMockupForm($event)" *ngIf="isMockupFormVisible">
-      <!-- Form fields for Name, Email, Phone, Description -->
-      <div class="input-container">
-        <input type="text" id="name" name="name" required pattern="[a-zA-Z\s]{3,30}" placeholder=" " title="Name should only contain letters and be 3-30 characters long." />
-        <label for="name">Name *</label>
-      </div>
-      <div class="input-container">
-        <input type="email" id="email" name="email" required pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" title="Enter a valid Gmail address (e.g., example@gmail.com)." />
-        <label for="email">Email Address *</label>
-      </div>
-      <div class="input-container">
-        <input type="tel" id="phone" name="phone" required pattern="^(\+91)?\d{10,15}$" placeholder=" " title="Enter a valid phone number (with or without +91) and 10-15 digits." />
-        <label for="phone">Phone No. *</label>
-      </div>
-      <div class="input-container">
-        <textarea id="description" name="description" required minlength="20" maxlength="500" placeholder=" " title="Description must be between 20 and 500 characters."></textarea>
-        <label for="description">Enter a brief description *</label>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
 
-    <!-- OTP Verification Form -->
-    <div *ngIf="isOTPVisible">
-      <p>We have sent an OTP to your email. Please enter it below to verify.</p>
-      <div class="input-container">
-        <input type="text" [(ngModel)]="enteredOTP" id="otp" required placeholder="Enter OTP" aria-describedby="otp-instructions" />
-        <label for="otp">Enter OTP</label>
-      </div>
-      <p id="otp-instructions">Please enter the 5-digit OTP sent to your email.</p>
-      <button (click)="verifyOTP()" [disabled]="isLoading" aria-label="Verify OTP">Verify OTP</button>
-      <p *ngIf="isLoading">Verifying OTP...</p>
-    </div>
-  </div>
-</div>
-<!-- Success Popup -->
-<div class="success-popup" *ngIf="isOTPVerified" (click)="closeOTPVerifiedPopup()">
-  <div class="success-popup-content" (click)="$event.stopPropagation()" role="dialog" aria-labelledby="success-popup-title">
-    <span class="close" (click)="closeOTPVerifiedPopup()" aria-label="Close Success Popup">
-      <i class="fa fa-times-circle"></i>
-    </span>
-    <h2 id="success-popup-title">Success!</h2>
-    <p>Your OTP has been verified successfully. Your submission is complete!</p>
-    <button (click)="closeOTPVerifiedPopup()">Close</button>
-  </div>
-</div>
+
+
+

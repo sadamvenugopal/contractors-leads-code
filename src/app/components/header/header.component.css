@@ -70,12 +70,12 @@
   
   /* Free Mockup Popup Modal */
   .modal {
-    position: fixed;
+    position: absolute;
     top: 0;
+    bottom: 50px;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -89,6 +89,7 @@
   
   .modal-content {
     background-color: white;
+    position: relative;
     padding: 30px;
     border-radius: 10px;
     text-align: left;
@@ -208,6 +209,56 @@
     background-color: #e65c00;
   }
   
+  /* OTP Content Styling */
+.otp-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.otp-content h2 {
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: #333333;
+  font-weight: bold;
+  text-align: center;
+}
+
+.otp-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  box-sizing: border-box;
+  transition: padding 0.2s ease-in-out, font-size 0.2s ease-in-out;
+}
+
+.otp-content button {
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+  margin-top: 20px; /* Adds spacing above the button */
+  align-self: center; /* Center the button horizontally */
+}
+
+.otp-content button:hover {
+  background-color: #e65c00;
+}
+
   /* Close button */
   .modal-content .close {
     position: absolute;
@@ -350,93 +401,7 @@
     transform: scale(1.05);
   }
   
-  /* Success Popup */
-.success-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1001;
-  opacity: 0; /* Start hidden */
-  pointer-events: none; /* Prevent interaction when hidden */
-  transition: opacity 0.3s ease-in-out;
-}
 
-.success-popup.show {
-  opacity: 1; /* Fully visible */
-  pointer-events: auto; /* Allow interaction */
-}
-
-.success-popup-content {
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  text-align: center;
-  width: 275px;
-  height: auto;
-  max-width: 90%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  font-family: 'Arial', sans-serif;
-  transform: translateY(-30px); /* Slide up when hidden */
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  opacity: 0; /* Hidden state */
-}
-
-.success-popup.show .success-popup-content {
-  transform: translateY(0); /* Slide down */
-  opacity: 1; /* Fully visible */
-}
-
-.success-popup-content h2 {
-  margin-bottom: 15px;
-  font-size: 18px;
-  color: #333333;
-  font-weight: bold;
-}
-
-.success-popup-content p {
-  margin-bottom: 15px;
-  font-size: 14px;
-  color: #555;
-}
-
-.success-popup-content button {
-  background-color: #ff6600;
-  color: white;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 5px;
-  font-size: 14px;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: background-color 0.3s ease;
-  margin-top: 20px; /* Adds spacing above the button */
-}
-
-.success-popup-content button:hover {
-  background-color: #e65c00;
-}
-
-.success-popup-content .close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 30px; /* Increase size */
-  color: #333;
-  cursor: pointer;
-}
-
-.success-popup-content .close:hover {
-  color: #ff1a1a; /* Darker red on hover */
-}
   
   @media (max-width: 768px) {
     .home-title {

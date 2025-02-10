@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { from, Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { getFirestore, doc, setDoc, collection } from '@angular/fire/firestore';
+
 
 @Injectable({
   providedIn: 'root',
@@ -9,29 +11,32 @@ import { catchError, map } from 'rxjs/operators';
 export class MockupService {
   private backendBaseUrl = 'http://localhost:3000'; // Replace with your backend URL
 
-  constructor(private http: HttpClient) {}
+  private firestore = getFirestore();
 
-  /**
-   * Add mockup form data to the backend.
+  constructor(private http: HttpClient){}
+
+    /**
+   * Add mockup form data to the backend.(message)
    */
-  addMockupForm(data: any): Observable<any> {
-    const url = `${this.backendBaseUrl}/submit-form`;
-    return this.http.post(url, data).pipe(
-      map((response) => {
-        console.log('✅ Form submitted successfully:', response);
-        return response;
-      }),
-      catchError((error) => {
-        console.error('❌ Error submitting form:', error);
-        throw error;
-      })
-    );
-  }
+    addMockupForm(data: any): Observable<any> {
+      const url = `${this.backendBaseUrl}/submit-form`;
+      return this.http.post(url, data).pipe(
+        map((response) => {
+          console.log('✅ Form submitted successfully:', response);
+          return response;
+        }),
+        catchError((error) => {
+          console.error('❌ Error submitting form:', error);
+          throw error;
+        })
+      );
+    }
+  
 
-  /**
+   /**
    * Verify OTP with the backend.
    */
-  verifyOTP(email: string, otp: string): Observable<any> {
+   verifyOTP(email: string, otp: string): Observable<any> {
     const url = `${this.backendBaseUrl}/verify-otp`;
     const payload = { email, otp }; // Ensure email is passed correctly
     console.log('🔍 Sending OTP verification request:', payload); // Debugging Log
@@ -49,6 +54,8 @@ export class MockupService {
     );
   }
 
+
+
   /**
    * Update OTP verification status in Firestore (optional).
    */
@@ -59,4 +66,10 @@ export class MockupService {
       observer.complete();
     });
   }
+
+
+
+  
 }
+
+

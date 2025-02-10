@@ -14,6 +14,7 @@ import { AdminNotificationService } from './services/admin-notification.service'
 // Social Login
 import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-social-login';
+import { appRoutes } from './app.routes';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,9 @@ import { GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-s
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    SocialLoginModule // ✅ Added SocialLoginModule for Google & Facebook login
+    SocialLoginModule, // ✅ Added SocialLoginModule for Google & Facebook login
+    RouterModule.forRoot(appRoutes), // Configure routes
+
   ],
   providers: [
     MockupService,

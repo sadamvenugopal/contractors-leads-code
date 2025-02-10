@@ -1,19 +1,20 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver'; // ✅ Import saveAs
+import { ClientformService } from '../services/clientform.service';
 
 @Component({
   selector: 'app-clientform',
-  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './clientform.component.html',
-  styleUrl: './clientform.component.css'
+  styleUrls: ['./clientform.component.css'],
+  imports:[ReactiveFormsModule]
 })
 export class ClientformComponent {
   clientForm: FormGroup;
+  isSubmitting: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private clientFormService: ClientformService) {
     this.clientForm = this.fb.group({
       businessName: ['', Validators.required],
       businessDescription: ['', Validators.required],
@@ -51,24 +52,48 @@ export class ClientformComponent {
   }
 
   onSubmit() {
-    if (this.clientForm.valid) {
-      console.log('✅ Form Data:', this.clientForm.value);
-      this.exportToExcel();
-    } else {
-      alert("Please fill all required fields.");
+    if (this.clientForm.invalid) {
+      this.errorMessage = 'Please fill all required fields.';
+      return;
     }
+  
+    this.isSubmitting = true;
+    this.successMessage = '';
+    this.errorMessage = '';
+  
+    // Trim whitespace from all string inputs before submitting
+    let formData = { ...this.clientForm.value };
+    Object.keys(formData).forEach((key) => {
+      if (typeof formData[key] === 'string') {
+        formData[key] = formData[key].trim();
+      }
+    });
+  
+    console.log('✅ Sending Data:', formData);
+  
+    this.clientFormService.submitClientForm(formData).subscribe({
+      next: (response) => {
+        console.log('✅ Success:', response);
+        this.successMessage = 'Form submitted successfully!';
+        this.isSubmitting = false;
+  
+        // Reset form but keep default values
+        this.clientForm.reset({
+          layout: 'Single Page',
+          specialFunctionality: 'No',
+          seoOptimization: 'No',
+          googleAnalytics: 'No',
+          hostingRecommendations: 'No',
+          ongoingMaintenance: 'No',
+          futureUpdates: 'No',
+        });
+      },
+      error: (error) => {
+        console.error('❌ Error:', error);
+        this.errorMessage = 'Failed to submit form. Please try again.';
+        this.isSubmitting = false;
+      }
+    });
   }
-
-  exportToExcel() {
-    const formData = [this.clientForm.value];
-    const worksheet = XLSX.utils.json_to_sheet(formData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Client Data');
-
-    // ✅ Generate and Download Excel File
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const data: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-    saveAs(data, `ClientData_${new Date().toISOString()}.xlsx`);
-  }
+  
 }

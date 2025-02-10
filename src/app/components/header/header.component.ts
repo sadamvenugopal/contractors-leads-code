@@ -6,8 +6,9 @@ import { LoginSignupComponent } from '../login-signup/login-signup.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MockupService } from '../../services/mockup.service';
 import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClientformComponent } from '../../clientform/clientform.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -20,7 +21,7 @@ import { ClientformComponent } from '../../clientform/clientform.component';
     LoginSignupComponent,
     FooterComponent,
     GalleryComponent,
-    ClientformComponent
+    ClientformComponent,
   ],
 })
 export class HeaderComponent {
@@ -47,8 +48,17 @@ export class HeaderComponent {
 
   constructor(
     private mockupService: MockupService,
-    private adminNotificationService: AdminNotificationService
+    private adminNotificationService: AdminNotificationService, private router:Router
   ) {}
+
+
+  ngOnInit() {
+    // Show the mockup form automatically after 3 seconds
+    setTimeout(() => {
+      this.isMockupFormVisible = true;
+    }, 3000);
+  }
+
 
   @HostListener('window:resize', ['$event'])
   onResize() {
@@ -143,6 +153,8 @@ export class HeaderComponent {
       },
     });
   }
+
+  
   
   verifyOTP() {
     if (!this.enteredOTP) {
@@ -175,6 +187,7 @@ export class HeaderComponent {
       },
     });
   }
+  
   
 
 
