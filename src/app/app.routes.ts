@@ -1,7 +1,16 @@
-import { Routes } from '@angular/router';
-import { ClientformComponent } from './clientform/clientform.component';
+import { Route } from '@angular/router';
+import { ClientformComponent } from './components/clientform/clientform.component';
+import { HeaderComponent } from './components/header/header.component';
 
-export const appRoutes: Routes = [
-  { path: 'dashboard', component: ClientformComponent },
-  // Other routes can be added here
+// Define routes
+export const appRoutes: Route[] = [
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./components/header/header.component').then(mod => mod.HeaderComponent)
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./components/clientform/clientform.component').then(mod => mod.ClientformComponent)
+  }
 ];

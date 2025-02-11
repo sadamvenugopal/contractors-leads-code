@@ -9,7 +9,6 @@ import { ClientformComponent } from './components/clientform/clientform.componen
   imports:
    [
     RouterOutlet, 
-    HeaderComponent,// Import AppHeaderComponent
     CommonModule
   ], 
 
