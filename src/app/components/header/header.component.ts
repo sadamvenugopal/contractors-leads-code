@@ -7,12 +7,12 @@ import { FooterComponent } from '../footer/footer.component';
 import { MockupService } from '../../services/mockup.service';
 import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ClientformComponent } from '../../clientform/clientform.component';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
+  standalone: true,
   styleUrls: ['./header.component.css'],
   imports: [
     CommonModule,
@@ -21,7 +21,6 @@ import { Router } from '@angular/router';
     LoginSignupComponent,
     FooterComponent,
     GalleryComponent,
-    ClientformComponent,
   ],
 })
 export class HeaderComponent {
@@ -122,9 +121,12 @@ export class HeaderComponent {
       description: (target.querySelector('#description') as HTMLTextAreaElement)?.value || '',
     };
   
-    // ✅ Ensure email is stored in localStorage BEFORE using it
+    // Store data in localStorage
     if (formData.email) {
       localStorage.setItem('userEmail', formData.email);
+      localStorage.setItem('userName', formData.name);
+      localStorage.setItem('userPhone', formData.phone);
+      localStorage.setItem('userDescription', formData.description);
     } else {
       console.error('Email is missing from the form!');
       alert('Please enter a valid email.');
@@ -153,6 +155,7 @@ export class HeaderComponent {
       },
     });
   }
+  
 
   
   
@@ -167,7 +170,7 @@ export class HeaderComponent {
   
     if (!userEmail) {
       console.error('User email not found in localStorage');
-      alert('There was an issue verifying the OTP. Please try again later.');
+      alert('Issue verifying the OTP or User Already Exist.');
       this.isLoading = false;
       return;
     }
@@ -178,7 +181,33 @@ export class HeaderComponent {
         this.isOTPVisible = false;
         this.isOTPVerified = true;
         this.enteredOTP = '';
-        this.isLoading = false;
+  
+        // After OTP verification, save form data to Firestore
+        const formData = {
+          name: localStorage.getItem('userName'),
+          email: userEmail,
+          phone: localStorage.getItem('userPhone'),
+          description: localStorage.getItem('userDescription')
+        };
+  
+        console.log(formData); // Check form data before saving
+  
+        this.mockupService.saveFormToFirestore(formData).subscribe({
+          next: (response) => {
+            if (response) {
+              console.log('Form saved to Firestore:', response);
+            } else {
+              console.log('Form not saved, user already exists.');
+            }
+            this.isLoading = false;
+            console.log('Navigating to dashboard...');
+            this.router.navigateByUrl('/dashboard')
+          },
+          error: (error) => {
+            console.error('Error saving form to Firestore:', error);
+            this.isLoading = false;
+          }
+        });
       },
       error: (error) => {
         alert('Invalid OTP. Please try again.');
@@ -187,6 +216,7 @@ export class HeaderComponent {
       },
     });
   }
+  
   
   
 

@@ -37,6 +37,7 @@ app.post("/submit-clientform", async (req, res) => {
             formData.brandStyle,
             formData.preferredWebsites,
             formData.designPreferences,
+            formData.selectDesign,
             formData.layout,
             formData.contentType,
             formData.contentReady,

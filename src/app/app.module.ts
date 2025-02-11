@@ -15,11 +15,14 @@ import { AdminNotificationService } from './services/admin-notification.service'
 import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
 import { GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-social-login';
 import { appRoutes } from './app.routes';
+import { ClientformComponent } from './components/clientform/clientform.component';
+import { ClientformService } from './services/clientform.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent
+    HeaderComponent,
+    ClientformComponent
   ],
   imports: [
     BrowserModule,
@@ -30,11 +33,13 @@ import { appRoutes } from './app.routes';
     SocialLoginModule, // ✅ Added SocialLoginModule for Google & Facebook login
     RouterModule.forRoot(appRoutes), // Configure routes
 
+
   ],
   providers: [
     MockupService,
     LoginSignupService,
     AdminNotificationService,
+    ClientformService,
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {

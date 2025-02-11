@@ -6,6 +6,9 @@ import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideMessaging, getMessaging } from '@angular/fire/messaging';
 import { provideHttpClient } from '@angular/common/http';
 import { SocialAuthServiceConfig, SocialLoginModule, GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-social-login';
+import { appRoutes } from './app/app.routes';
+import { RouterModule } from '@angular/router';
+import { importProvidersFrom } from '@angular/core';
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -28,6 +31,7 @@ if (getApps().length === 0) {
 // Bootstrap Application
 bootstrapApplication(AppComponent, {
   providers: [
+    importProvidersFrom(RouterModule.forRoot(appRoutes)),  // Import routes
     provideHttpClient(),
     provideFirebaseApp(() => getApp()),
     provideAuth(() => getAuth()),
