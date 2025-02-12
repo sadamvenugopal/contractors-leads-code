@@ -54,12 +54,14 @@
   .pricing-card:hover {
     transform: translateY(-5px); /* Subtle lift on hover */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid #ff0000;
   }
   
   .pricing-card h3 {
     font-size: 1.6rem;
     color: #333;
     margin-bottom: 1rem;
+
   }
   
   .pricing-card .price {
@@ -73,7 +75,10 @@
     font-size: 1rem;
     color: #666;
     margin-bottom: 1.5rem;
-  }
+    font-family: "Times New Roman", Times, serif;
+    font-weight: bold;
+}
+  
   
   /* Pricing Card Features List */
   .pricing-card ul {
@@ -119,12 +124,20 @@
     color: #0073e6;
     margin-bottom: 1rem;
   }
+
+  .old-price {
+    color: #9f8b8bac; /* Light gray color */
+    text-decoration: line-through; /* Strikethrough effect */
+    margin-right: 8px; /* Space between old price and current price */
+    font-size: 18px; /* Slightly smaller font size */
+    padding-left: 20px;
+  }
   
   .price .period {
-    font-size: 0.8rem;
+    font-size: 16px;
     color: #666;
-    margin-left: 0.25rem;
-  }
+    margin-left: 0;
+}
   /* Buttons */
   .buy-btn {
     background-color: rgb(255, 165, 0);

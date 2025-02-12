@@ -82,7 +82,8 @@
     z-index: 1000;
     opacity: 0; /* Start hidden */
     pointer-events: none; /* Prevent interaction when hidden */
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
+    background: rgba(0, 0, 0, 0.5);
   }
   
   
@@ -107,7 +108,7 @@
   
   .modal.show {
     opacity: 1; /* Fully visible */
-    pointer-events: auto; /* Allow interaction */
+    pointer-events:painted; /* Allow interaction */
   }
   
   .modal.show .modal-content {
@@ -557,8 +558,8 @@
   }
   
   .service-icon img {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
   }
   
   h3 {
