@@ -12,5 +12,10 @@ export const appRoutes: Route[] = [
   {
     path: 'dashboard',
     loadComponent: () => import('./components/clientform/clientform.component').then(mod => mod.ClientformComponent)
-  }
+  },
+  {
+    path: 'signup',
+    loadComponent: () => import('./components/login-signup/login-signup.component').then(mod => mod.LoginSignupComponent)
+  },
+
 ];

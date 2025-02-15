@@ -26,12 +26,14 @@
       
       <ul>
         <li *ngFor="let feature of package.features">
-          <b>{{ feature.title }}</b> - {{ feature.description }}
+          <b>{{ feature.title }}</b> 
         </li>
       </ul>
       
-      <button class="buy-btn">Launch Website</button>
+      <!-- <button class="buy-btn" (click)="navigateToLogin()">Launch </button> -->
+      <button class="buy-btn" (click)="openSignUpFormAndCloseMenu()">Launch </button>
       <a class="learn-more-btn">Learn More</a>
     </div>
   </div>
 </section>
+<app-login-signup *ngIf="isSignUpFormVisible" (close)="closeSignUpForm()"></app-login-signup>

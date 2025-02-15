@@ -1,37 +1,32 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginSignupService {
-  private apiUrl = environment.apiUrl; // e.g., 'http://localhost:3000'
+  private apiUrl = 'http://localhost:3000/api/auth';
 
   constructor(private http: HttpClient) {}
 
-  signUp(name: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/register`, { name, email, password });
+  signUp(name: string, email: string, phone: string, password: string,): Promise<any> {
+    return this.http.post(`${this.apiUrl}/register`, { name, email, phone, password, }).toPromise();
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, { email, password });
+    return this.http.post(`${this.apiUrl}/login`, { email, password });
   }
 
-  resetPassword(email: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/forgot-password`, { email });
+  resetPassword(email: string): Promise<any> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, { email }).toPromise();
   }
 
-  googleLogin(): void {
-    window.location.href = `${this.apiUrl}/auth/google`;
+  resetPasswordWithToken(token: string, newPassword: string): Promise<any> {
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword, confirmPassword: newPassword }).toPromise();
   }
 
-  facebookLogin(): void {
-    window.location.href = `${this.apiUrl}/auth/facebook`;
-  }
-
-  setToken(token: string): void {
+  setToken(token: string) {
     localStorage.setItem('authToken', token);
   }
 
@@ -39,7 +34,11 @@ export class LoginSignupService {
     return localStorage.getItem('authToken');
   }
 
-  logout(): void {
-    localStorage.removeItem('authToken');
+  googleLogin() {
+    window.location.href = `${this.apiUrl}/google`;
+  }
+
+  facebookLogin() {
+    window.location.href = `${this.apiUrl}/facebook`;
   }
 }
