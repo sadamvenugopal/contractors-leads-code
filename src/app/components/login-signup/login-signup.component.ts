@@ -57,52 +57,41 @@ export class LoginSignupComponent {
     this.isVisible = false;
     this.close.emit();
   }
-  async submitSignUpForm(event: Event) {
-    event.preventDefault();
+
+  async submitSignUpForm() {
     if (this.signUpForm.valid) {
-      const formData = this.signUpForm.value;
       try {
-        await this.loginSignupService.signUp(formData.name, formData.email, formData.phone, formData.password);
+        await this.loginSignupService.signUp(this.signUpForm.value);
         alert('Sign up successful!');
         this.openLoginForm();
       } catch (error) {
         console.error('Sign up error:', error);
+        alert('User already exist!');
         this.errorMessage = 'Sign up failed. Please try again.';
       }
     } else {
-      console.log('Form is invalid');
       this.errorMessage = 'Please fill out all required fields correctly.';
     }
   }
-  
 
   async submitLoginForm() {
     if (this.loginForm.invalid) return;
-
-    const { email, password } = this.loginForm.value;
-    this.loginSignupService.login(email, password).subscribe(
-      (response: any) => {
-        if (response?.token) {
-          this.loginSignupService.setToken(response.token);
-          alert('Login successful!');
-          this.closeForm();
-        } else {
-          alert('Login failed. No token received.');
-        }
-      },
-      (error: any) => {
-        console.error('Login error:', error);
-        alert('Login failed. Check your credentials.');
-      }
-    );
+    try {
+      const response = await this.loginSignupService.login(this.loginForm.value).toPromise();
+      this.loginSignupService.setToken(response.token);
+      alert('Login successful!');
+      this.closeForm();
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Check your credentials.');
+    }
   }
+
 
   async submitForgotPasswordForm() {
     if (this.forgotPasswordForm.invalid) return;
-
-    const { email } = this.forgotPasswordForm.value;
     try {
-      await this.loginSignupService.resetPassword(email);
+      await this.loginSignupService.resetPassword(this.forgotPasswordForm.value.email);
       alert('Password reset email sent!');
     } catch (error) {
       console.error('Reset password error:', error);
@@ -111,20 +100,9 @@ export class LoginSignupComponent {
   }
 
   async submitResetPasswordForm() {
-    if (this.resetPasswordForm.invalid) return;
-
-    const { newPassword, confirmPassword } = this.resetPasswordForm.value;
-    if (newPassword !== confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-    if (!this.resetToken) {
-      alert('No reset token found. Please request a password reset first.');
-      return;
-    }
-
+    if (this.resetPasswordForm.invalid || !this.resetToken) return;
     try {
-      await this.loginSignupService.resetPasswordWithToken(this.resetToken, newPassword);
+      await this.loginSignupService.resetPasswordWithToken(this.resetToken, this.resetPasswordForm.value.newPassword);
       alert('Password reset successfully!');
       this.openLoginForm();
     } catch (error) {

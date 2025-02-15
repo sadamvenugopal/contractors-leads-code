@@ -2,20 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class LoginSignupService {
   private apiUrl = 'http://localhost:3000/api/auth';
 
   constructor(private http: HttpClient) {}
 
-  signUp(name: string, email: string, phone: string, password: string,): Promise<any> {
-    return this.http.post(`${this.apiUrl}/register`, { name, email, phone, password, }).toPromise();
+  signUp(data: any): Promise<any> {
+    return this.http.post(`${this.apiUrl}/register`, data).toPromise();
   }
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { email, password });
+  login(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, data);
   }
 
   resetPassword(email: string): Promise<any> {
@@ -23,7 +21,7 @@ export class LoginSignupService {
   }
 
   resetPasswordWithToken(token: string, newPassword: string): Promise<any> {
-    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword, confirmPassword: newPassword }).toPromise();
+    return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword }).toPromise();
   }
 
   setToken(token: string) {
