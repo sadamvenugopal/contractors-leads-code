@@ -81,7 +81,7 @@ export class PricingComponent {
     
     },
     {
-      title: 'High-End Business  Solution',
+      title: 'High-End Business Solution',
       oldPrice: '$479',  // Old price
       price: '$1279',
       period: '/month',
