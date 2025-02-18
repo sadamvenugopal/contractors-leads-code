@@ -3,6 +3,7 @@ const { google } = require("googleapis");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const fs = require("fs");
+const router = express.Router();
 
 const app = express();
 app.use(bodyParser.json());
@@ -10,7 +11,6 @@ app.use(cors());
 
 const SHEET_ID = "1m6R7-k1RVwB4knSLKJTch-a3zJPX2r84z1C25daqTJM"; // Replace with your actual Google Sheet ID
 const CREDENTIALS = JSON.parse(fs.readFileSync("credentials.json")); // Load API credentials
-
 async function accessSpreadsheet() {
     const auth = new google.auth.GoogleAuth({
         credentials: CREDENTIALS,
@@ -77,6 +77,17 @@ app.post("/submit-clientform", async (req, res) => {
         res.status(500).json({ error: "Failed to save data" });
     }
 });
+
+
+
+// Example route
+router.get('/', (req, res) => {
+    res.send('Google Sheets API is working!');
+  });
+  
+  module.exports = router;
+
+  
 
 // ✅ Start the Server
 const PORT = process.env.PORT || 3000;

@@ -1,8 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from './components/header/header.component';
-import { ClientformComponent } from './components/clientform/clientform.component';
+import { LoginSignupService } from './services/login-signup.service';
 
 @Component({
   selector: 'app-root',
@@ -15,13 +14,20 @@ import { ClientformComponent } from './components/clientform/clientform.componen
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'trivaj';
 
 
   activeSection: string = 'home'; // Set default section to 'home'
+  constructor(private authService: LoginSignupService) {}
 
   setActiveSection(section: string) {
     this.activeSection = section;
   }
+
+
+
+  ngOnInit() {
+  }
+
 }

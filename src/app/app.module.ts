@@ -17,12 +17,14 @@ import { GoogleLoginProvider, FacebookLoginProvider } from '@abacritt/angularx-s
 import { appRoutes } from './app.routes';
 import { ClientformComponent } from './components/clientform/clientform.component';
 import { ClientformService } from './services/clientform.service';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
-    ClientformComponent
+    ClientformComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

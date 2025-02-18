@@ -10,6 +10,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const session = require('express-session');
+const router = express.Router();
 
 // Initialize Firebase Admin
 initializeApp({ credential: applicationDefault() });
@@ -149,17 +150,28 @@ passport.use(new FacebookStrategy({
         return done(error, false);
     }
 }));
+
+
 // Google Login Routes
 app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-app.get('/api/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), (req, res) => {
-    res.json(req.user);
+// Google OAuth Callback
+app.get('/api/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
+    if (!req.user) {
+        return res.redirect('http://localhost:4200/login?error=authentication_failed');
+    }
+
+    // Redirect to frontend with token
+    const token = req.user.token;
+    res.redirect(`http://localhost:4200/home`);
 });
+
 
 // Facebook Login Routes
 app.get('/api/auth/facebook', passport.authenticate('facebook'));
 app.get('/api/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), (req, res) => {
     res.json(req.user);
 });
+
 
 // User Registration with Email Verification
 app.post('/api/auth/register', async (req, res) => {
@@ -230,7 +242,7 @@ app.get('/api/auth/verify-email', async (req, res) => {
         }
         await usersCollection.doc(userId).update({ verified: true });
         // Redirect to login page
-        res.redirect('http://localhost:3000/login');
+        res.redirect('http://localhost:4200/');
     } catch (error) {
         console.error('Error verifying email:', error);
         res.status(400).json({ message: 'Invalid or expired token' });
@@ -382,6 +394,15 @@ app.post('/api/auth/reset-password', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
+// Example route
+router.get('/', (req, res) => {
+    res.send('Auth route is working!');
+  });
+
+  module.exports = router;
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
