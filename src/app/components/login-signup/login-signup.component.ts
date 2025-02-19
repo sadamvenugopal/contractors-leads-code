@@ -26,6 +26,8 @@ export class LoginSignupComponent {
   isResetPasswordFormVisible = false;
   resetToken: string | null = null;
 
+
+
   constructor(private fb: FormBuilder, private loginSignupService: LoginSignupService,private router: Router) {
     this.signUpForm = this.fb.group(
       {
@@ -52,6 +54,11 @@ export class LoginSignupComponent {
       confirmPassword: ['', Validators.required],
     });
   }
+
+
+  ngOnInit(): void {
+    this.loginSignupService.handleGoogleCallback(); // Check for Google login callback token
+}
 
   passwordMatchValidator(form: FormGroup) {
     return form.get('password')?.value === form.get('confirmPassword')?.value ? null : { mismatch: true };

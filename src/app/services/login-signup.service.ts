@@ -18,15 +18,21 @@ export class LoginSignupService {
   }
 
   login(data: any): Observable<any> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, data).pipe(
+    return this.http.post<{ token: string; user: { name: string; email: string } }>(`${this.apiUrl}/login`, data).pipe(
       tap(response => {
         this.setToken(response.token);
+        this.setUser(response.user); // Store user data
         this.router.navigate(['/home']).then(() => {
           this.location.replaceState('/home'); // Removes the previous login page from history
         });
       })
     );
   }
+
+  // Store user details in localStorage
+public setUser(user: { name: string; email: string }) {
+  localStorage.setItem('user', JSON.stringify(user));
+}
 
   resetPassword(email: string): Promise<any> {
     return this.http.post(`${this.apiUrl}/forgot-password`, { email }).toPromise();
@@ -51,8 +57,6 @@ export class LoginSignupService {
 
 googleLogin() {
   window.location.href = `${this.apiUrl}/google`; // Fix the URL formatting
-     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/google`, {});
-
 }
 
 // googleLogin(): Observable<AuthResponse> {
@@ -65,15 +69,15 @@ googleLogin() {
 handleGoogleCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
-  
+
   if (token) {
-    this.setToken(token);
-    this.router.navigate(['/home'], { replaceUrl: true }).then(() => {
-      // Remove the token from the URL after login
-      this.location.replaceState('/home');
-    });
+      this.setToken(token);
+      this.router.navigate(['/home'], { replaceUrl: true }).then(() => {
+          this.location.replaceState('/home'); // Remove token from URL after login
+      });
   }
 }
+
 
 
 
@@ -87,10 +91,18 @@ handleGoogleCallback() {
 
   logout() {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('user'); // Remove user details
     this.router.navigate(['/']).then(() => {
-      window.location.reload(); // Ensure user is redirected after logout
+      window.location.reload(); // Ensure the UI updates
     });
   }
+
+  
+  // Get user details
+getUser(): { name: string; email: string } | null {
+  const user = localStorage.getItem('user');
+  return user ? JSON.parse(user) : null;
+}
 
   public setToken(token: string) {
     localStorage.setItem('authToken', token);

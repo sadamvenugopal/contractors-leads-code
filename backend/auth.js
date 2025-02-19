@@ -166,6 +166,7 @@ app.get('/api/auth/google/callback', passport.authenticate('google', { session: 
 });
 
 
+
 // Facebook Login Routes
 app.get('/api/auth/facebook', passport.authenticate('facebook'));
 app.get('/api/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), (req, res) => {

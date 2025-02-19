@@ -7,15 +7,15 @@
   </div>
 
   <div *ngIf="showDropdown" class="profile-dropdown">
-    <p><strong>Name:</strong> {{ userData?.name }}</p>
-    <p><strong>Email:</strong> {{ userData?.email }}</p>
-    <button (click)="logout()">Logout</button>
+    <p><strong>Name:</strong> {{ user?.name || 'Guest' }}</p>
+    <p><strong>Email:</strong> {{ user?.email || 'Not available' }}</p>
+    <button (click)="logout()" class="logout-button">Logout</button>
   </div>
 </nav>
 
 <div class="container">
   <h2>Welcome to the Home Page</h2>
-  <button (click)="logout()" class="logout-button">Logout</button>
+  <!-- <button (click)="logout()" class="logout-button">Logout</button> -->
 
   <p>
     Thank you for choosing contractorsandhandimanwebsite.com. We need basic information to provide a final quote to your team.
@@ -113,3 +113,4 @@
     </form>
   </div>
 </div>
+

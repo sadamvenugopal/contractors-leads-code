@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FinalFormService } from '../../services/final-form.service';
+import { LoginSignupService } from '../../services/login-signup.service';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +14,7 @@ import { FinalFormService } from '../../services/final-form.service';
 })
 export class HomeComponent implements OnInit {
 
-
+  user: { name: string; email: string } | null = null;
   homeForm: FormGroup;
   isSubmitting: boolean = false;
   successMessage: string = '';
@@ -37,7 +38,9 @@ export class HomeComponent implements OnInit {
       private fb: FormBuilder,
       private router: Router,
       private finalFormService: FinalFormService, // Inject the service
-    ) {
+      private    authService: LoginSignupService) 
+
+    {
       this.homeForm = this.fb.group({
         businessName: ['', Validators.required],
         contactPerson: ['', Validators.required],
@@ -104,6 +107,9 @@ export class HomeComponent implements OnInit {
     window.onpopstate = () => {
       history.pushState(null, '', location.href); // Prevents back navigation
     };
+
+    this.user = this.authService.getUser(); // Get user details
+
   }
 
   toggleProfileDropdown() {
@@ -111,8 +117,6 @@ export class HomeComponent implements OnInit {
   }
   
   logout() {
-    this.router.navigate(['/']).then(() => {
-      window.location.reload(); // Ensure user is redirected after logout
-    });
+    this.authService.logout();
   }
 }
