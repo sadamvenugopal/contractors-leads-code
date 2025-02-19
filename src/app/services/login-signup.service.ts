@@ -66,17 +66,30 @@ googleLogin() {
 // facebookLogin(): Observable<AuthResponse> {
 //   return this.http.post<AuthResponse>(`${this.apiUrl}/auth/facebook`, {});
 // }
+
+
 handleGoogleCallback() {
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
+  const name = urlParams.get('name') || '';
+  const email = urlParams.get('email') || '';
+
+  console.log("Extracted token:", token); // Debugging token
 
   if (token) {
-      this.setToken(token);
-      this.router.navigate(['/home'], { replaceUrl: true }).then(() => {
-          this.location.replaceState('/home'); // Remove token from URL after login
-      });
+    this.setToken(token);
+    this.setUser({ name, email });
+
+    console.log("Stored authToken:", this.getToken()); // Debugging storage
+
+    this.router.navigate(['/home'], { replaceUrl: true }).then(() => {
+      this.location.replaceState('/home');
+    });
+  } else {
+    console.error("No token found in URL");
   }
 }
+
 
 
 
@@ -86,8 +99,12 @@ handleGoogleCallback() {
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken');
+    console.log("Checking authToken in isLoggedIn():", token); // Debugging token read
+    return !!token; // Returns true if token exists
   }
+  
+  
 
   logout() {
     localStorage.removeItem('authToken');
@@ -104,7 +121,9 @@ getUser(): { name: string; email: string } | null {
   return user ? JSON.parse(user) : null;
 }
 
-  public setToken(token: string) {
-    localStorage.setItem('authToken', token);
-  }
+public setToken(token: string) {
+  console.log("Setting authToken:", token); // Debugging token storage
+  localStorage.setItem('authToken', token);
+}
+
 }

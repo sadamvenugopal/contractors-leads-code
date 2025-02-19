@@ -155,15 +155,17 @@ passport.use(new FacebookStrategy({
 // Google Login Routes
 app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 // Google OAuth Callback
+// After successful authentication, redirect the user with the token
 app.get('/api/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
     if (!req.user) {
-        return res.redirect('http://localhost:4200/login?error=authentication_failed');
+        return res.status(401).json({ error: 'Authentication failed' });
     }
 
-    // Redirect to frontend with token
-    const token = req.user.token;
-    res.redirect(`http://localhost:4200/home`);
+    const { token, user } = req.user;
+    console.log('Google OAuth Success - Token:', token); // Debugging log
+    res.redirect(`http://localhost:4200/home?token=${token}&name=${user.name}&email=${user.email}`);
 });
+
 
 
 
