@@ -9,15 +9,16 @@ import { SocialAuthServiceConfig, SocialLoginModule, GoogleLoginProvider, Facebo
 import { appRoutes } from './app/app.routes';
 import { RouterModule } from '@angular/router';
 import { importProvidersFrom } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 // Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyA19KWm79n-f2T92Yrvm9myofDZ-1whSs0",
-  authDomain: "sadamvenugopal-fd73f.firebaseapp.com",
-  projectId: "sadamvenugopal-fd73f",
-  storageBucket: "sadamvenugopal-fd73f.firebasestorage.app",
-  messagingSenderId: "683383393221",
-  appId: "1:683383393221:web:65dd30bdd7023064df19ac"
+  apiKey: "AIzaSyCRkD3Xk4DmhkdZitJt5ec5fpwU6PV2gcA",
+  authDomain: "userlogin-b9efd.firebaseapp.com",
+  projectId: "userlogin-b9efd",
+  storageBucket: "userlogin-b9efd.firebasestorage.app",
+  messagingSenderId: "743199998332",
+  appId: "1:743199998332:web:6531f91db89e3fb1cf64f9"
 };
 
 // Initialize Firebase explicitly
@@ -54,7 +55,7 @@ bootstrapApplication(AppComponent, {
           }
         ]
       } as SocialAuthServiceConfig
-    }, provideFirebaseApp(() => initializeApp({ projectId: "sadamvenugopal-fd73f", appId: "1:683383393221:web:65dd30bdd7023064df19ac", storageBucket: "sadamvenugopal-fd73f.firebasestorage.app", apiKey: "AIzaSyA19KWm79n-f2T92Yrvm9myofDZ-1whSs0", authDomain: "sadamvenugopal-fd73f.firebaseapp.com", messagingSenderId: "683383393221" })), provideAuth(() => getAuth()), provideFirestore(() => getFirestore())
+    }, provideFirebaseApp(() => initializeApp({ projectId: "sadamvenugopal-fd73f", appId: "1:683383393221:web:65dd30bdd7023064df19ac", storageBucket: "sadamvenugopal-fd73f.firebasestorage.app", apiKey: "AIzaSyA19KWm79n-f2T92Yrvm9myofDZ-1whSs0", authDomain: "sadamvenugopal-fd73f.firebaseapp.com", messagingSenderId: "683383393221" })), provideAuth(() => getAuth()), provideFirestore(() => getFirestore()), provideFirebaseApp(() => initializeApp({ projectId: "userlogin-b9efd", appId: "1:743199998332:web:6531f91db89e3fb1cf64f9", storageBucket: "userlogin-b9efd.firebasestorage.app", apiKey: "AIzaSyCRkD3Xk4DmhkdZitJt5ec5fpwU6PV2gcA", authDomain: "userlogin-b9efd.firebaseapp.com", messagingSenderId: "743199998332" })), provideFirestore(() => getFirestore()), provideAnimationsAsync(), provideAnimationsAsync()
   ]
 })
   .catch(err => console.error('Error bootstrapping application:', err));

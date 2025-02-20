@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FinalFormService } from '../../services/final-form.service';
@@ -73,6 +73,11 @@ export class HomeComponent implements OnInit {
       this.isSubmitting = true;
       this.successMessage = '';
       this.errorMessage = '';
+
+      setTimeout(() => {
+        this.isSubmitting = false;
+        this.router.navigate(['thank-you']); // Navigate to Thank You page
+      }, 2000);
   
       const formData = { ...this.homeForm.value };
       Object.keys(formData).forEach((key) => {
@@ -99,24 +104,27 @@ export class HomeComponent implements OnInit {
           this.errorMessage = 'Failed to submit form. Please try again.';
           this.isSubmitting = false;
         },
+
+        
       });
     }
   
   ngOnInit() {
     history.pushState(null, '', location.href);
     window.onpopstate = () => {
-      history.pushState(null, '', location.href); // Prevents back navigation
-    };
-
-    this.user = this.authService.getUser(); // Get user details
-
+      history.pushState(null, '/', location.href);
   }
+  
+  this.user = this.authService.getUser(); // Get user details
 
+}
   toggleProfileDropdown() {
     this.showDropdown = !this.showDropdown;
   }
   
   logout() {
     this.authService.logout();
+    
   }
+  
 }

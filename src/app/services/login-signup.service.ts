@@ -23,7 +23,7 @@ export class LoginSignupService {
         this.setToken(response.token);
         this.setUser(response.user); // Store user data
         this.router.navigate(['/home']).then(() => {
-          this.location.replaceState('/home'); // Removes the previous login page from history
+          window.history.pushState(null, '', '/home'); // Override browser history
         });
       })
     );

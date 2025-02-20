@@ -8,12 +8,16 @@ export const appRoutes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./components/header/header.component').then(mod => mod.HeaderComponent)
+    loadComponent: () => import('./components/header/header.component').then(mod => mod.HeaderComponent),
   },
   {
     path: 'dashboard',
     loadComponent: () => import('./components/clientform/clientform.component').then(mod => mod.ClientformComponent),
-    canActivate: [AuthGuard]
+  },
+
+  {
+    path: 'thank-you',
+    loadComponent: () => import('./components/thank-you/thank-you.component').then(mod => mod.ThankYouComponent)
   },
   {
     path: 'signup',
@@ -23,6 +27,9 @@ export const appRoutes: Routes = [
     path: 'home',
     loadComponent: () => import('./components/home/home.component').then(mod => mod.HomeComponent),
     canActivate: [AuthGuard],
+    canDeactivate: [CanDeactivateGuard] // Prevents going back
+
+
   },
   {
     path: 'auth/callback',

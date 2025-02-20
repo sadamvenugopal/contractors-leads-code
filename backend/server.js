@@ -7,7 +7,6 @@ const authRoutes = require('./auth');  // Import your auth.js
 const passport = require('passport');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use('/auth', authRoutes); // Set up the auth routes
 app.use(cors());
@@ -110,7 +109,8 @@ app.post('/verify-otp', async (req, res) => {
 });
 
 // Start Server
+const PORT = process.env.PORT ||3001;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port http://localhost:${PORT}`);
 });
 

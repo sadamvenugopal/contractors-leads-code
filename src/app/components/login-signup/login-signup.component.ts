@@ -18,17 +18,22 @@ export class LoginSignupComponent {
   loginForm: FormGroup;
   forgotPasswordForm: FormGroup;
   resetPasswordForm: FormGroup;
+
   errorMessage: string = '';
   successMessage: string = '';
+
   isSignUpFormVisible = true;
   isLoginFormVisible = false;
   isForgotPasswordFormVisible = false;
   isResetPasswordFormVisible = false;
+
   resetToken: string | null = null;
 
-
-
-  constructor(private fb: FormBuilder, private loginSignupService: LoginSignupService,private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private loginSignupService: LoginSignupService,
+    private router: Router
+  ) {
     this.signUpForm = this.fb.group(
       {
         name: ['', Validators.required],
@@ -55,10 +60,9 @@ export class LoginSignupComponent {
     });
   }
 
-
   ngOnInit(): void {
     this.loginSignupService.handleGoogleCallback(); // Check for Google login callback token
-}
+  }
 
   passwordMatchValidator(form: FormGroup) {
     return form.get('password')?.value === form.get('confirmPassword')?.value ? null : { mismatch: true };
@@ -72,80 +76,61 @@ export class LoginSignupComponent {
   async submitSignUpForm() {
     this.clearMessages();
     if (this.signUpForm.invalid) {
-      this.errorMessage = 'Please fill out all required fields correctly.';
+      this.showErrorMessage('Please fill out all required fields correctly.');
       return;
     }
     try {
       await this.loginSignupService.signUp(this.signUpForm.value);
-      this.successMessage = 'Sign up successful! Please check your email to verify your account.';
-      
-      // Show an alert box
-      window.alert(this.successMessage);
-  
+      this.showSuccessMessage('Sign up successful! Please check your email to verify your account.');
       this.openLoginForm();
     } catch (error) {
-      this.errorMessage = this.extractErrorMessage(error) || 'Sign up failed. Please try again.';
-      
-      // Optional: Show an error alert
-      window.alert(this.errorMessage);
+      this.showErrorMessage(this.extractErrorMessage(error) || 'Sign up failed. Please try again.');
     }
   }
-  
 
   async submitLoginForm() {
     this.clearMessages();
     if (this.loginForm.invalid) {
-      this.errorMessage = 'Please enter a valid email and password.';
+      this.showErrorMessage('Please enter a valid email and password.');
       return;
     }
     try {
       const response = await this.loginSignupService.login(this.loginForm.value).toPromise();
       this.loginSignupService.setToken(response.token);
-      this.successMessage = 'Login successful!';
+      this.showSuccessMessage('Login successful!');
       this.closeForm();
-      window.alert(this.successMessage);
-      
-      // Navigate to home and disable back button
-      this.router.navigate(['/home']).then(() => {
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => {
-          history.pushState(null, '', location.href);
-        };
-      });
-
+      this.navigateToHomeAndPreventBack();
     } catch (error) {
-      this.errorMessage = this.extractErrorMessage(error) || 'Login failed. Check your credentials.';
-      window.alert(this.errorMessage);
+      this.showErrorMessage(this.extractErrorMessage(error) || 'Login failed. Check your credentials.');
     }
   }
-
 
   async submitForgotPasswordForm() {
     this.clearMessages();
     if (this.forgotPasswordForm.invalid) {
-      this.errorMessage = 'Please enter a valid email.';
+      this.showErrorMessage('Please enter a valid email.');
       return;
     }
     try {
       await this.loginSignupService.resetPassword(this.forgotPasswordForm.value.email);
-      this.successMessage = 'Password reset email sent!';
+      this.showSuccessMessage('Password reset email sent!');
     } catch (error) {
-      this.errorMessage = this.extractErrorMessage(error) || 'Error sending reset email.';
+      this.showErrorMessage(this.extractErrorMessage(error) || 'Error sending reset email.');
     }
   }
 
   async submitResetPasswordForm() {
     this.clearMessages();
     if (this.resetPasswordForm.invalid || !this.resetToken) {
-      this.errorMessage = 'Please fill in all required fields correctly.';
+      this.showErrorMessage('Please fill in all required fields correctly.');
       return;
     }
     try {
       await this.loginSignupService.resetPasswordWithToken(this.resetToken, this.resetPasswordForm.value.newPassword);
-      this.successMessage = 'Password reset successfully! Please log in with your new password.';
+      this.showSuccessMessage('Password reset successfully! Please log in with your new password.');
       this.openLoginForm();
     } catch (error) {
-      this.errorMessage = this.extractErrorMessage(error) || 'Password reset failed. Please try again.';
+      this.showErrorMessage(this.extractErrorMessage(error) || 'Password reset failed. Please try again.');
     }
   }
 
@@ -164,14 +149,13 @@ export class LoginSignupComponent {
     }
   }
 
-  
-closeModal() {
-  this.isSignUpFormVisible = false;
-  this.isLoginFormVisible = false;
-  this.isForgotPasswordFormVisible = false;
-  this.isResetPasswordFormVisible = false;
-  this.close.emit();
-}
+  closeModal() {
+    this.isSignUpFormVisible = false;
+    this.isLoginFormVisible = false;
+    this.isForgotPasswordFormVisible = false;
+    this.isResetPasswordFormVisible = false;
+    this.close.emit();
+  }
 
   openLoginForm() {
     this.isSignUpFormVisible = false;
@@ -205,27 +189,37 @@ closeModal() {
   googleLogin() {
     try {
       this.loginSignupService.googleLogin();
-      window.alert('Google login successful!');
-      
-      // Navigate to home and disable back button
-      this.router.navigate(['/home']).then(() => {
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => {
-          history.pushState(null, '', location.href);
-        };
-      });
-
+      this.showSuccessMessage('Google login successful!');
+      this.navigateToHomeAndPreventBack();
     } catch (error) {
       console.error('Google login error:', error);
     }
   }
 
-
   facebookLogin() {
     try {
       this.loginSignupService.facebookLogin();
+      this.showSuccessMessage('Facebook login successful!');
+      this.navigateToHomeAndPreventBack();
     } catch (error) {
       console.error('Facebook login error:', error);
     }
+  }
+
+  navigateToHomeAndPreventBack() {
+    this.router.navigate(['/home']).then(() => {
+      history.pushState(null, '', location.href);
+      window.onpopstate = () => {
+        history.pushState(null, '', location.href);
+      };
+    });
+  }
+
+  showSuccessMessage(message: string) {
+    window.alert(message); // Use plain alert for success messages
+  }
+
+  showErrorMessage(message: string) {
+    window.alert(message); // Use plain alert for error messages
   }
 }

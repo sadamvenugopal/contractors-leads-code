@@ -8,7 +8,7 @@ import { getFirestore, doc, setDoc, collection, getDocs, query, where } from '@a
   providedIn: 'root',
 })
 export class MockupService {
-  private backendBaseUrl = 'http://localhost:3000'; // Replace with your backend URL
+  private backendBaseUrl = 'http://localhost:3001'; // Replace with your backend URL
   private firestore = getFirestore();
 
   constructor(private http: HttpClient) {}
