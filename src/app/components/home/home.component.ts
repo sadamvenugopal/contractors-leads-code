@@ -69,45 +69,38 @@ export class HomeComponent implements OnInit {
         this.homeForm.markAllAsTouched();
         return;
       }
-  
+    
       this.isSubmitting = true;
       this.successMessage = '';
       this.errorMessage = '';
-
-      setTimeout(() => {
-        this.isSubmitting = false;
-        this.router.navigate(['thank-you']); // Navigate to Thank You page
-      }, 2000);
-  
+    
       const formData = { ...this.homeForm.value };
       Object.keys(formData).forEach((key) => {
         if (typeof formData[key] === 'string') {
           formData[key] = formData[key].trim();
         }
       });
-  
+    
       console.log('✅ Sending Data:', formData);
-  
+    
       this.finalFormService.submitFinalForm(formData).subscribe({
         next: (response) => {
           console.log('✅ Success:', response);
           this.successMessage = 'Form submitted successfully!';
           alert('Form submitted, Congratulations ✅');
           this.isSubmitting = false;
-  
-          this.router.navigate(['/thank-you']).then(() => {
-            history.pushState(null, '', location.href);
-          });
+    
+          // Navigate to Thank You page without delay
+          this.router.navigate(['/thank-you']);
         },
         error: (error) => {
           console.error('❌ Error:', error);
           this.errorMessage = 'Failed to submit form. Please try again.';
           this.isSubmitting = false;
         },
-
-        
       });
     }
+    
   
   ngOnInit() {
     history.pushState(null, '', location.href);

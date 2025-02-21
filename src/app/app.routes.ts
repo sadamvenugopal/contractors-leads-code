@@ -1,9 +1,6 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { AuthGuard } from './auth.guard';
-import { CanDeactivateGuard } from './can-deactivate.guard';
 
-// Define routes
 export const appRoutes: Routes = [
   {
     path: '',
@@ -14,35 +11,27 @@ export const appRoutes: Routes = [
     path: 'dashboard',
     loadComponent: () => import('./components/clientform/clientform.component').then(mod => mod.ClientformComponent),
   },
-
   {
     path: 'thank-you',
     loadComponent: () => import('./components/thank-you/thank-you.component').then(mod => mod.ThankYouComponent),
-    canActivate: [AuthGuard],
-
   },
   {
     path: 'signup',
-    loadComponent: () => import('./components/login-signup/login-signup.component').then(mod => mod.LoginSignupComponent)
+    loadComponent: () => import('./components/login-signup/login-signup.component').then(mod => mod.LoginSignupComponent),
   },
   {
     path: 'home',
     loadComponent: () => import('./components/home/home.component').then(mod => mod.HomeComponent),
-    canActivate: [AuthGuard],
-    canDeactivate: [CanDeactivateGuard] // Prevents going back
-
-
+    canActivate: [AuthGuard], // Removed canDeactivate if unnecessary
   },
   {
     path: 'auth/callback',
     loadComponent: () => import('./components/auth-callback/auth-callback.component').then(mod => mod.AuthCallbackComponent),
-     canActivate: [AuthGuard],
-
+    canActivate: [AuthGuard],
+  },
+  {
+    path: '**',
+    redirectTo: 'home', // Redirect unknown routes to home
+    pathMatch: 'full',
   }
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(appRoutes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule {}
