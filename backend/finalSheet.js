@@ -7,10 +7,6 @@ const sgMail = require("@sendgrid/mail"); // Import SendGrid mail package
 require("dotenv").config(); // Load environment variables from .env file
 const router = express.Router();
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
-
 // Load environment variables
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
@@ -32,7 +28,7 @@ async function accessSpreadsheet() {
 }
 
 // ✅ API Route to Save Form Data to Google Sheets (Final Sheet)
-app.post("/submit-finalform", async (req, res) => {
+router.post("/submit-finalform", async (req, res) => {
     try {
         const sheets = await accessSpreadsheet();
         const formData = req.body; // Receive form data from Angular
@@ -48,7 +44,6 @@ app.post("/submit-finalform", async (req, res) => {
             formData.howSoon,
             formData.price
         ]];
-
         // Save data to Google Sheets
         await sheets.spreadsheets.values.append({
             spreadsheetId: FINAL_SHEET_ID,
@@ -57,7 +52,6 @@ app.post("/submit-finalform", async (req, res) => {
             insertDataOption: "INSERT_ROWS",
             requestBody: { values },
         });
-
         // Send email to admin
         const adminEmailMessage = {
             to: ADMIN_EMAIL,
@@ -74,10 +68,9 @@ app.post("/submit-finalform", async (req, res) => {
                 Address: ${formData.address}
                 Bundle Selection: ${formData.bundleSelection}
                 How Soon: ${formData.howSoon}
-                price: ${formData.price}
+                Price: ${formData.price}
             `,
         };
-
         // Send email to user
         const userEmailMessage = {
             to: formData.contactEmail, // Use the email provided by the user in the form
@@ -86,7 +79,6 @@ app.post("/submit-finalform", async (req, res) => {
             text: `
                 Thank you for submitting your details!
                 We have received your information and will get back to you soon.
-
                 Here are the details you submitted:
                 Business Name: ${formData.businessName}
                 Contact Person: ${formData.contactPerson}
@@ -97,15 +89,12 @@ app.post("/submit-finalform", async (req, res) => {
                 Address: ${formData.address}
                 Bundle Selection: ${formData.bundleSelection}
                 How Soon: ${formData.howSoon}
-                price: ${formData.price}
-
+                Price: ${formData.price}
             `,
         };
-
         // Send both emails
         await sgMail.send(adminEmailMessage);
         await sgMail.send(userEmailMessage);
-
         res.status(200).json({ message: "Data saved successfully and emails sent!" });
     } catch (error) {
         console.error("❌ Error:", error);
@@ -113,18 +102,9 @@ app.post("/submit-finalform", async (req, res) => {
     }
 });
 
-
-
 // Example route
 router.get('/', (req, res) => {
   res.send('Final Sheet route is working!');
 });
 
 module.exports = router;
-
-
-// ✅ Start the Server
-const PORT = process.env.PORT ||3000;
-app.listen(PORT, () => {
-    console.log(`✅ Final Sheet Server running on http://localhost:${PORT}`);
-});

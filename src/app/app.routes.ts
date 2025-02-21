@@ -17,7 +17,9 @@ export const appRoutes: Routes = [
 
   {
     path: 'thank-you',
-    loadComponent: () => import('./components/thank-you/thank-you.component').then(mod => mod.ThankYouComponent)
+    loadComponent: () => import('./components/thank-you/thank-you.component').then(mod => mod.ThankYouComponent),
+    canActivate: [AuthGuard],
+
   },
   {
     path: 'signup',

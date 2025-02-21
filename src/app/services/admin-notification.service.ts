@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AdminNotificationService {
-  private backendBaseUrl = 'http://localhost:3000'; // Replace with your backend URL
+  private backendBaseUrl = 'http://localhost:3001'; // Replace with your backend URL
+  // private backendBaseUrl = environment.apiUrl; // Use environment variable
 
   constructor(private http: HttpClient) {}
 

@@ -3,12 +3,14 @@ import { HttpClient } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { getFirestore, doc, setDoc, collection, getDocs, query, where } from '@angular/fire/firestore';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockupService {
   private backendBaseUrl = 'http://localhost:3001'; // Replace with your backend URL
+  // private backendBaseUrl = environment.apiUrl; // Use environment variable
   private firestore = getFirestore();
 
   constructor(private http: HttpClient) {}

@@ -5,28 +5,24 @@ const cors = require("cors");
 const fs = require("fs");
 const router = express.Router();
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
-
+// Load API credentials
 const SHEET_ID = "1m6R7-k1RVwB4knSLKJTch-a3zJPX2r84z1C25daqTJM"; // Replace with your actual Google Sheet ID
 const CREDENTIALS = JSON.parse(fs.readFileSync("credentials.json")); // Load API credentials
+
 async function accessSpreadsheet() {
     const auth = new google.auth.GoogleAuth({
         credentials: CREDENTIALS,
         scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
-
     const sheets = google.sheets({ version: "v4", auth });
     return sheets;
 }
 
 // ✅ API Route to Save Form Data to Google Sheets
-app.post("/submit-clientform", async (req, res) => {
+router.post("/submit-clientform", async (req, res) => {
     try {
         const sheets = await accessSpreadsheet();
         const formData = req.body; // Receive form data from Angular
-
         const values = [[
             formData.businessName,
             formData.businessDescription,
@@ -62,7 +58,6 @@ app.post("/submit-clientform", async (req, res) => {
             formData.phone,
             formData.description
         ]];
-
         await sheets.spreadsheets.values.append({
             spreadsheetId: SHEET_ID,
             range: "Sheet1!A:AE", // Adjust based on the number of fields
@@ -70,7 +65,6 @@ app.post("/submit-clientform", async (req, res) => {
             insertDataOption: "INSERT_ROWS",
             requestBody: { values },
         });
-
         res.status(200).json({ message: "Data saved successfully!" });
     } catch (error) {
         console.error("❌ Error:", error);
@@ -78,19 +72,9 @@ app.post("/submit-clientform", async (req, res) => {
     }
 });
 
-
-
 // Example route
 router.get('/', (req, res) => {
     res.send('Google Sheets API is working!');
-  });
-  
-  module.exports = router;
-
-  
-
-// ✅ Start the Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`✅ Google Sheets Server running on http://localhost:${PORT}`);
 });
+
+module.exports = router;

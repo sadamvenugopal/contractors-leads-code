@@ -16,15 +16,12 @@ const router = express.Router();
 initializeApp({ credential: applicationDefault() });
 const db = getFirestore();
 const usersCollection = db.collection('users');
-const app = express();
-app.use(express.json());
-app.use(cors({ origin: true, credentials: true }));
 
 // Initialize SendGrid with the API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Session setup for Passport
-app.use(
+router.use(
     session({
         secret: process.env.SESSION_SECRET,
         resave: false,
@@ -32,14 +29,14 @@ app.use(
         cookie: {
             secure: false, // Set to true in production with HTTPS
             maxAge: 1000 * 60 * 60 * 24, // 24 hours
-            httpOnly: true, // Prevent access via JavaScript
+            httpOnly: true,  // Prevent access via JavaScript
             sameSite: 'lax' // Default to lax
         }
     })
 );
 
-app.use(passport.initialize());
-app.use(passport.session());
+router.use(passport.initialize());
+router.use(passport.session());
 
 // Passport configuration
 passport.serializeUser((user, done) => done(null, user));
@@ -49,7 +46,7 @@ passport.deserializeUser((obj, done) => done(null, obj));
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: 'http://localhost:3000/api/auth/google/callback'
+    callbackURL: 'http://localhost:3001/api/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const email = profile.emails[0].value;
@@ -78,7 +75,7 @@ passport.use(new GoogleStrategy({
                 from: process.env.EMAIL_FROM,
                 subject: 'Welcome to Trivaj!',
                 text: `Hi ${name},\n\nWelcome to Trivaj! We're excited to have you on board.`,
-                html: `<p>Hi ${name},</p><p>Welcome to <strong>Trivaj</strong>! We're excited to have you on board.</p>`
+                html: `Hi ${name},<br>Welcome to Trivaj! We're excited to have you on board.`
             };
             await sgMail.send(msg);
         } else {
@@ -101,7 +98,7 @@ passport.use(new GoogleStrategy({
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL: 'http://localhost:3000/api/auth/facebook/callback',
+    callbackURL: 'http://localhost:3001/api/auth/facebook/callback',
     profileFields: ['id', 'emails', 'name']
 }, async (accessToken, refreshToken, profile, done) => {
     try {
@@ -149,33 +146,35 @@ passport.use(new FacebookStrategy({
     }
 }));
 
-
 // Google Login Routes
-app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
 // Google OAuth Callback
-// After successful authentication, redirect the user with the token
-app.get('/api/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
+router.get('/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
     if (!req.user) {
         return res.status(401).json({ error: 'Authentication failed' });
     }
 
     const { token, user } = req.user;
     console.log('Google OAuth Success - Token:', token); // Debugging log
-    res.redirect(`http://localhost:4200/home?token=${token}&name=${user.name}&email=${user.email}`);
+    res.redirect(`http://localhost:4200/home?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
 });
-
-
-
 
 // Facebook Login Routes
-app.get('/api/auth/facebook', passport.authenticate('facebook'));
-app.get('/api/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), (req, res) => {
-    res.json(req.user);
+router.get('/facebook', passport.authenticate('facebook'));
+
+router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login' }), (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ error: 'Authentication failed' });
+    }
+
+    const { token, user } = req.user;
+    console.log('Facebook OAuth Success - Token:', token); // Debugging log
+    res.redirect(`http://localhost:4200/home?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}`);
 });
 
-
 // User Registration with Email Verification
-app.post('/api/auth/register', async (req, res) => {
+router.post('/register', async (req, res) => {
     try {
         const { name, email, phone, password, confirmPassword } = req.body;
         // Input Validation
@@ -210,8 +209,8 @@ app.post('/api/auth/register', async (req, res) => {
             to: email,
             from: process.env.EMAIL_FROM,
             subject: 'Verify Your Email',
-            text: `Click the following link to verify your email: http://localhost:3000/api/auth/verify-email?token=${verificationToken}`,
-            html: `Click the following link to verify your email: <a href="http://localhost:3000/api/auth/verify-email?token=${verificationToken}">Verify Email</a>`
+            text: `Click the following link to verify your email: http://localhost:3001/api/auth/verify-email?token=${verificationToken}`,
+            html: `Click the following link to verify your email: <a href="http://localhost:3001/api/auth/verify-email?token=${verificationToken}">Verify Email</a>`
         };
         await sgMail.send(msg);
         res.status(201).json({ message: 'User created successfully. Please check your email to verify your account.' });
@@ -221,9 +220,8 @@ app.post('/api/auth/register', async (req, res) => {
     }
 });
 
-
 // Verify Email
-app.get('/api/auth/verify-email', async (req, res) => {
+router.get('/verify-email', async (req, res) => {
     try {
         const { token } = req.query;
         if (!token) {
@@ -251,7 +249,7 @@ app.get('/api/auth/verify-email', async (req, res) => {
 });
 
 // Resend Verification Email
-app.post('/api/auth/resend-verification', async (req, res) => {
+router.post('/resend-verification', async (req, res) => {
     try {
         const { email } = req.body;
         if (!email) {
@@ -265,13 +263,13 @@ app.post('/api/auth/resend-verification', async (req, res) => {
         if (user.verified) {
             return res.json({ message: 'Account already verified' });
         }
-        const verificationToken = jwt.sign({ userId: user.username }, process.env.JWT_SECRET, { expiresIn: '24h' });
+        const verificationToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         const msg = {
             to: email,
             from: process.env.EMAIL_FROM,
             subject: 'Resend Verification Email',
-            text: `Click the following link to verify your email: http://localhost:3000/api/auth/verify-email?token=${verificationToken}`,
-            html: `Click the following link to verify your email: <a href="http://localhost:3000/api/auth/verify-email?token=${verificationToken}">Verify Email</a>`
+            text: `Click the following link to verify your email: http://localhost:3001/api/auth/verify-email?token=${verificationToken}`,
+            html: `Click the following link to verify your email: <a href="http://localhost:3001/api/auth/verify-email?token=${verificationToken}">Verify Email</a>`
         };
         await sgMail.send(msg);
         res.json({ message: 'Verification email resent' });
@@ -282,7 +280,7 @@ app.post('/api/auth/resend-verification', async (req, res) => {
 });
 
 // User Login
-app.post('/api/auth/login', async (req, res) => {
+router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         // Input Validation
@@ -300,7 +298,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
         if (await bcrypt.compare(password, user.password)) {
             const token = jwt.sign({ userId: userDoc.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token, user: { username: user.username, email: user.email, name: user.name } });
+            res.json({ token, user: { name: user.name, email: user.email } });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
         }
@@ -310,9 +308,8 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-
 // Forgot Password
-app.post('/api/auth/forgot-password', async (req, res) => {
+router.post('/forgot-password', async (req, res) => {
     try {
         const { email } = req.body;
         // Input Validation
@@ -340,8 +337,8 @@ app.post('/api/auth/forgot-password', async (req, res) => {
             to: email,
             from: process.env.EMAIL_FROM,
             subject: 'Password Reset Request',
-            text: `Click the following link to reset your password: http://localhost:3000/api/auth/reset-password?token=${resetToken}`,
-            html: `Click the following link to reset your password: <a href="http://localhost:3000/api/auth/reset-password?token=${resetToken}">Reset Password</a>`
+            text: `Click the following link to reset your password: http://localhost:3001/api/auth/reset-password?token=${resetToken}`,
+            html: `Click the following link to reset your password: <a href="http://localhost:3001/api/auth/reset-password?token=${resetToken}">Reset Password</a>`
         };
         await sgMail.send(msg);
         res.json({ message: 'Password reset email sent' });
@@ -351,7 +348,8 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     }
 });
 
-app.post('/api/auth/reset-password', async (req, res) => {
+// Reset Password
+router.post('/reset-password', async (req, res) => {
     try {
         const { token, newPassword, confirmPassword } = req.body;
         // Input Validation
@@ -385,8 +383,8 @@ app.post('/api/auth/reset-password', async (req, res) => {
         // Update the User Password and Remove Reset Token
         await usersCollection.doc(userId).update({
             password: hashedPassword,
-            resetToken: firestore.FieldValue.delete(),
-            resetTokenExpiration: firestore.FieldValue.delete()
+            resetToken: null,
+            resetTokenExpiration: null
         });
 
         res.json({ message: 'Password reset successfully' });
@@ -396,16 +394,9 @@ app.post('/api/auth/reset-password', async (req, res) => {
     }
 });
 
-
 // Example route
 router.get('/', (req, res) => {
     res.send('Auth route is working!');
-  });
-
-  module.exports = router;
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = router;
