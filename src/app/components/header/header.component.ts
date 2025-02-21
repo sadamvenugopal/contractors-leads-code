@@ -1,9 +1,13 @@
 import { Component, HostListener } from '@angular/core';
-import { PricingComponent } from '../pricing/pricing.component';  // Import PricingComponent
-import { CommonModule } from '@angular/common';  // Import CommonModule for ngIf and ngFor
+import { PricingComponent } from '../pricing/pricing.component';
+import { CommonModule } from '@angular/common';
 import { GalleryComponent } from '../gallery/gallery.component';
 import { LoginSignupComponent } from '../login-signup/login-signup.component';
 import { FooterComponent } from '../footer/footer.component';
+import { MockupService } from '../../services/mockup.service';
+import { AdminNotificationService } from '../../services/admin-notification.service'; // Import the notification service
+import { FormsModule } from '@angular/forms';
+import { ClientformComponent } from '../../clientform/clientform.component';
 
 @Component({
   selector: 'app-header',
@@ -11,95 +15,209 @@ import { FooterComponent } from '../footer/footer.component';
   styleUrls: ['./header.component.css'],
   imports: [
     CommonModule,
-    PricingComponent,// Add pricingComponent 
+    FormsModule,
+    PricingComponent,
     LoginSignupComponent,
     FooterComponent,
-    GalleryComponent
-    
-  ],  
+    GalleryComponent,
+    ClientformComponent
+  ],
 })
 export class HeaderComponent {
   isMenuOpen: boolean = false;
-  isMockupFormVisible: boolean = false;  // Add this line to initialize the variable
+  isMockupFormVisible: boolean = false; // Controls visibility of the mockup form modal
+  isSignUpFormVisible: boolean = false; // Controls visibility of the sign-up form modal
+  isOTPVisible: boolean = false; // Controls visibility of the OTP verification modal
+  isOTPVerified: boolean = false; // Controls visibility of the success popup
+  enteredOTP: string = ''; // Stores the OTP entered by the user
   windowWidth: number = window.innerWidth;
-  isSignUpFormVisible: boolean = false;
+  isLoading: boolean = false;
 
+  services = [
+    { icon: 'icon1.png', title: 'Service 1', description: 'Description for Service 1.' },
+    { icon: 'icon2.png', title: 'Service 2', description: 'Description for Service 2.' },
+    { icon: 'icon3.png', title: 'Service 3', description: 'Description for Service 3.' },
+    { icon: 'icon4.png', title: 'Service 4', description: 'Description for Service 4.' },
+  ];
 
+  countries = [
+    { code: '+91', name: 'India' },
+    { code: '+1', name: 'USA' },
+  ];
 
+  constructor(
+    private mockupService: MockupService,
+    private adminNotificationService: AdminNotificationService
+  ) {}
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: Event) {
+  onResize() {
     this.windowWidth = window.innerWidth;
   }
 
-   // Define services array
-  services = [
-    { icon: 'icon1.png', title: 'Service 1', description: 'Description for Service 1 goes here.' },
-    { icon: 'icon2.png', title: 'Service 2', description: 'Description for Service 2 goes here.' },
-    { icon: 'icon3.png', title: 'Service 3', description: 'Description for Service 3 goes here.' },
-    { icon: 'icon4.png', title: 'Service 4', description: 'Description for Service 4 goes here.' }
-  ];
-
-  // Toggle the menu and overlay visibility
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
     const hamburgerElement = document.querySelector('.hamburger');
-    if (hamburgerElement) {
-      if (this.isMenuOpen) {
-        hamburgerElement.classList.add('active');
-      } else {
-        hamburgerElement.classList.remove('active');
-      }
-    }
+    hamburgerElement?.classList.toggle('active', this.isMenuOpen);
   }
 
-  // Close the menu and overlay
   closeMenu() {
     this.isMenuOpen = false;
+    const hamburgerElement = document.querySelector('.hamburger');
+    hamburgerElement?.classList.remove('active');
   }
 
-  // Scroll to the specific section and close menu
   navigateToSection(sectionId: string) {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
-      this.closeMenu(); // Close the menu when a section is selected
+      this.closeMenu();
     }
   }
 
-  // togglePricing() {
-  //   // Scroll to the pricing section when the Business button is clicked
-  //   const pricingSection = document.getElementById('pricing');
-  //   if (pricingSection) {
-  //     pricingSection.scrollIntoView({ behavior: 'smooth' });
-  //     this.closeMenu(); // Close the menu
-  //   }
-  // }
-
-  // Open the mockup form and close the menu
   openMockupFormAndCloseMenu() {
-    this.isMockupFormVisible = true;  // Open the mockup form
-    this.closeMenu();  // Close the menu
+    this.isMockupFormVisible = true;
+    this.closeMenu();
   }
 
-  // Close the mockup form
   closeMockupForm() {
     this.isMockupFormVisible = false;
   }
 
-  submitMockupForm(event: Event) {
-
-
+  closeAllModals() {
+    this.isMockupFormVisible = false;
+    this.isOTPVisible = false;
+    this.isOTPVerified = false;
   }
 
-   // Open the sign-up form and close the menu (if applicable)
-   openSignUpFormAndCloseMenu() {
-    this.isSignUpFormVisible = true; // Show the sign-up modal
-    // Close the menu if it exists (add logic here if needed)
+  openSignUpFormAndCloseMenu() {
+    this.isSignUpFormVisible = true;
+    this.closeMenu();
   }
 
-  // Close the sign-up form/modal
   closeSignUpForm() {
-    this.isSignUpFormVisible = false; // Hide the sign-up modal
+    this.isSignUpFormVisible = false;
+  }
+
+
+  submitMockupForm(event: Event) {
+    event.preventDefault();
+    this.isLoading = true;
+  
+    const target = event.target as HTMLFormElement;
+    const formData = {
+      name: (target.querySelector('#name') as HTMLInputElement)?.value || '',
+      email: (target.querySelector('#email') as HTMLInputElement)?.value || '',
+      phone: (target.querySelector('#phone') as HTMLInputElement)?.value || '',
+      description: (target.querySelector('#description') as HTMLTextAreaElement)?.value || '',
+    };
+  
+    // ✅ Ensure email is stored in localStorage BEFORE using it
+    if (formData.email) {
+      localStorage.setItem('userEmail', formData.email);
+    } else {
+      console.error('Email is missing from the form!');
+      alert('Please enter a valid email.');
+      this.isLoading = false;
+      return;
+    }
+  
+    if (!this.validateForm(formData)) {
+      this.isLoading = false;
+      return;
+    }
+  
+    this.mockupService.addMockupForm(formData).subscribe({
+      next: (response) => {
+        console.log('Form submitted successfully:', response);
+        localStorage.setItem('mockupId', response.id); // Store mockup ID
+        this.isMockupFormVisible = false;
+        this.isOTPVisible = true;
+        alert('OTP sent to your email! Please check your inbox.');
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error submitting form:', error);
+        alert('There was an issue submitting your form. Please try again later.');
+        this.isLoading = false;
+      },
+    });
+  }
+  
+  verifyOTP() {
+    if (!this.enteredOTP) {
+      alert('Please enter the OTP.');
+      return;
+    }
+  
+    this.isLoading = true;
+    const userEmail = localStorage.getItem('userEmail'); // Fetch email from localStorage
+  
+    if (!userEmail) {
+      console.error('User email not found in localStorage');
+      alert('There was an issue verifying the OTP. Please try again later.');
+      this.isLoading = false;
+      return;
+    }
+  
+    this.mockupService.verifyOTP(userEmail, this.enteredOTP).subscribe({
+      next: () => {
+        alert('OTP Verified! Submission successful.');
+        this.isOTPVisible = false;
+        this.isOTPVerified = true;
+        this.enteredOTP = '';
+        this.isLoading = false;
+      },
+      error: (error) => {
+        alert('Invalid OTP. Please try again.');
+        console.error(error);
+        this.isLoading = false;
+      },
+    });
+  }
+  
+
+
+  closeOTPVerifiedPopup() {
+    this.isOTPVerified = false;
+    this.closeMockupForm();
+  }
+
+  private resetForm() {
+    this.enteredOTP = '';
+    this.isMockupFormVisible = false;
+    const form = document.querySelector('form');
+    if (form) {
+      form.reset();
+    }
+  }
+
+  private validateForm(formData: { name: string; email: string; phone: string; description: string }): boolean {
+    const nameRegex = /^[a-zA-Z]{3,30}$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^(\+91)?\d{10,15}$/;
+    const descriptionWordCount = this.countWords(formData.description);
+  
+    if (!nameRegex.test(formData.name)) {
+      alert('Name must contain only letters and be between 3 and 30 characters.');
+      return false;
+    }
+    if (!emailRegex.test(formData.email)) {
+      alert('Email must be a valid Gmail address.');
+      return false;
+    }
+    if (!phoneRegex.test(formData.phone)) {
+      alert('Phone number must be 10 to 15 digits long and may include country code.');
+      return false;
+    }
+    if (descriptionWordCount < 20 || descriptionWordCount > 100) {
+      alert('Description must contain between 20 and 100 words.');
+      return false;
+    }
+    return true;
+  }
+
+  private countWords(input: string): number {
+    return input.trim().split(/\s+/).length;
   }
 }
