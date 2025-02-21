@@ -99,7 +99,6 @@ export class LoginSignupComponent {
       this.loginSignupService.setToken(response.token);
       this.showSuccessMessage('Login successful!');
       this.closeForm();
-      this.navigateToHomeAndPreventBack();
     } catch (error) {
       this.showErrorMessage(this.extractErrorMessage(error) || 'Login failed. Check your credentials.');
     }
@@ -190,7 +189,6 @@ export class LoginSignupComponent {
     try {
       this.loginSignupService.googleLogin();
       this.showSuccessMessage('Google login successful!');
-      this.navigateToHomeAndPreventBack();
     } catch (error) {
       console.error('Google login error:', error);
     }
@@ -200,20 +198,12 @@ export class LoginSignupComponent {
     try {
       this.loginSignupService.facebookLogin();
       this.showSuccessMessage('Facebook login successful!');
-      this.navigateToHomeAndPreventBack();
     } catch (error) {
       console.error('Facebook login error:', error);
     }
   }
 
-  navigateToHomeAndPreventBack() {
-    this.router.navigate(['/home']).then(() => {
-      history.pushState(null, '', location.href);
-      window.onpopstate = () => {
-        history.pushState(null, '', location.href);
-      };
-    });
-  }
+
 
   showSuccessMessage(message: string) {
     window.alert(message); // Use plain alert for success messages
