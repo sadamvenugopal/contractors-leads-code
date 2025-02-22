@@ -1,3 +1,5 @@
+// app.routes.ts
+
 import { Routes } from '@angular/router';
 import { AuthGuard } from './auth.guard';
 
@@ -16,13 +18,9 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./components/thank-you/thank-you.component').then(mod => mod.ThankYouComponent),
   },
   {
-    path: 'signup',
-    loadComponent: () => import('./components/login-signup/login-signup.component').then(mod => mod.LoginSignupComponent),
-  },
-  {
     path: 'home',
     loadComponent: () => import('./components/home/home.component').then(mod => mod.HomeComponent),
-    canActivate: [AuthGuard], // Removed canDeactivate if unnecessary
+    canActivate: [AuthGuard], 
   },
   {
     path: 'auth/callback',
@@ -30,8 +28,8 @@ export const appRoutes: Routes = [
     canActivate: [AuthGuard],
   },
   {
-    path: '**',
-    redirectTo: 'home', // Redirect unknown routes to home
-    pathMatch: 'full',
+    path: 'reset-password',
+    loadComponent: () => import('./components/reset-password/reset-password.component').then(mod => mod.ResetPasswordComponent),
   }
+  
 ];

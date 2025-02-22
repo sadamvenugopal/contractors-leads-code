@@ -1,6 +1,7 @@
-<!-- Modal for Signup, Login, and Forgot Password -->
+<!-- login-signup.component.html -->
+
 <div class="login-modal" 
-     [ngClass]="{'show': isSignUpFormVisible || isLoginFormVisible || isForgotPasswordFormVisible || isResetPasswordFormVisible}" 
+     [ngClass]="{'show': isSignUpFormVisible || isLoginFormVisible || isForgotPasswordFormVisible}" 
      (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <span class="close" (click)="closeModal()">
@@ -80,29 +81,6 @@
           <label for="forgotEmail">Email Address *</label>
         </div>
         <button type="submit" [disabled]="forgotPasswordForm.invalid">Reset Password</button>
-      </form>
-      <p class="login-link">
-        Remember your password? <a href="#" (click)="openLoginForm()">Login here</a>
-      </p>
-      <p class="signup-link">
-        Don't have an account? <a href="#" (click)="openSignUpForm()">Sign up here</a>
-      </p>
-    </div>
-    <!-- Reset Password Form -->
-    <div *ngIf="isResetPasswordFormVisible">
-      <h2>Reset Password</h2>
-      <form [formGroup]="resetPasswordForm" (submit)="submitResetPasswordForm($event)">
-        <div class="input-container">
-          <input id="resetPassword" type="password" formControlName="newPassword" placeholder=" " required />
-          <label for="resetPassword">New Password *</label>
-          <small *ngIf="resetPasswordForm.controls['newPassword'].invalid && resetPasswordForm.controls['newPassword'].touched">Password must be at least 6 characters.</small>
-        </div>
-        <div class="input-container">
-          <input id="confirmResetPassword" type="password" formControlName="confirmPassword" placeholder=" " required />
-          <label for="confirmResetPassword">Confirm Password *</label>
-          <small *ngIf="resetPasswordForm.controls['confirmPassword'].invalid && resetPasswordForm.controls['confirmPassword'].touched">Passwords must match.</small>
-        </div>
-        <button type="submit" [disabled]="resetPasswordForm.invalid">Reset Password</button>
       </form>
       <p class="login-link">
         Remember your password? <a href="#" (click)="openLoginForm()">Login here</a>

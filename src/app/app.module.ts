@@ -18,6 +18,7 @@ import { appRoutes } from './app.routes';
 import { ClientformComponent } from './components/clientform/clientform.component';
 import { ClientformService } from './services/clientform.service';
 import { HomeComponent } from './components/home/home.component';
+import { AuthGuard } from './auth.guard';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { HomeComponent } from './components/home/home.component';
     LoginSignupService,
     AdminNotificationService,
     ClientformService,
+    AuthGuard,
     {
       provide: 'SocialAuthServiceConfig',
       useValue: {

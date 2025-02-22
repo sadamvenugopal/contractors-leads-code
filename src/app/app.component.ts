@@ -1,36 +1,27 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Router, RouterOutlet } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
 import { LoginSignupService } from './services/login-signup.service';
 
 @Component({
   selector: 'app-root',
-  imports:
-   [
-    RouterOutlet, 
-    CommonModule
-  ], 
-
+  imports: [RouterOutlet, CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
   title = 'trivaj';
+  activeSection: string = 'home'; // Default section
 
-
-  activeSection: string = 'home'; // Set default section to 'home'
-  constructor(private authService: LoginSignupService) {}
+  constructor(private authService: LoginSignupService, private router: Router, private location: Location) {}
 
   setActiveSection(section: string) {
     this.activeSection = section;
   }
 
-
-
   ngOnInit() {
-
     this.authService.handleGoogleCallback();
 
+ 
   }
-
 }

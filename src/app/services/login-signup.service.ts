@@ -69,18 +69,22 @@ export class LoginSignupService {
     const token = urlParams.get('token');
     const name = urlParams.get('name') || '';
     const email = urlParams.get('email') || '';
-    console.log("Extracted token:", token); // Debugging token
+    console.log("Extracted token:", token);
+  
     if (token) {
       this.setToken(token);
       this.setUser({ name, email });
-      console.log("Stored authToken:", this.getToken()); // Debugging storage
+      console.log("Stored authToken:", this.getToken());
+  
       this.router.navigate(['/home'], { replaceUrl: true }).then(() => {
         this.location.replaceState('/home');
       });
     } else {
-      console.error("No token found in URL");
+      console.error("No token found in URL, redirecting to home.");
+      this.router.navigate(['/']);  // Redirect to home if no token
     }
   }
+  
 
   facebookLogin() {
     window.location.href = `${this.apiUrl}/facebook`;
@@ -88,9 +92,48 @@ export class LoginSignupService {
 
   isLoggedIn(): boolean {
     const token = localStorage.getItem('authToken');
-    console.log("Checking authToken in isLoggedIn():", token); // Debugging token read
-    return !!token; // Returns true if token exists
+  
+    if (!token) {
+      return false;
+    }
+  
+    try {
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const expiryTime = tokenPayload.exp * 1000; // Convert to milliseconds
+  
+      // 🛑 Ignore reset-password token
+      const currentUrl = window.location.href;
+      if (currentUrl.includes('/reset-password')) {
+        console.warn("Auth Service - Reset password mode detected, ignoring login state.");
+        return false;
+      }
+  
+      if (Date.now() >= expiryTime) {
+        console.warn("Auth Service - Token expired.");
+        this.logout();
+        return false;
+      }
+  
+      return true;
+    } catch (e) {
+      console.error("Auth Service - Invalid token format.", e);
+      return false;
+    }
   }
+  
+  storeToken(token: string): void {
+    const currentUrl = window.location.href;
+  
+    // 🛑 Prevent storing reset password token
+    if (currentUrl.includes('/reset-password')) {
+      console.warn("Auth Service - Ignoring token storage for reset-password.");
+      return;
+    }
+  
+    localStorage.setItem('authToken', token);
+    console.log("Auth Service - Stored Token in LocalStorage:", token);
+  }
+  
 
  
   logout() {
